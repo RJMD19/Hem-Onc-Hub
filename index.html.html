@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HemOnc Literature Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0a1628;--navy-mid:#12244a;--navy-light:#1e3a6e;
+    --accent:#3b82c4;--accent-light:#5fa8e8;--accent-pale:#dbeafe;
+    --gold:#c9973a;--surface:#ffffff;--surface-2:#f4f6fb;--surface-3:#e8edf7;
+    --border:#d1daea;--text-primary:#0a1628;--text-secondary:#4a5a7a;--text-muted:#7a8dac;
+    --radius:10px;--radius-sm:6px;
+    --shadow:0 2px 8px rgba(10,22,40,0.08);--shadow-md:0 4px 20px rgba(10,22,40,0.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--surface-2);color:var(--text-primary);min-height:100vh;}
+
+  header{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.2);}
+  .header-inner{max-width:1300px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;gap:1.5rem;height:64px;}
+  .logo{display:flex;align-items:baseline;gap:.5rem;text-decoration:none;flex-shrink:0;}
+  .logo-main{font-family:'DM Serif Display',serif;font-size:1.5rem;color:#fff;letter-spacing:-.01em;}
+  .logo-sub{font-size:.72rem;color:var(--accent-light);font-weight:500;letter-spacing:.06em;text-transform:uppercase;}
+  .header-search{flex:1;max-width:400px;position:relative;}
+  .header-search input{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:.5rem 1rem .5rem 2.4rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.875rem;outline:none;transition:background .2s,border .2s;}
+  .header-search input::placeholder{color:rgba(255,255,255,.4);}
+  .header-search input:focus{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4);}
+  .search-icon{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.4);pointer-events:none;font-size:14px;}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:1rem;}
+  .last-updated{font-size:.72rem;color:rgba(255,255,255,.45);}
+  .refresh-btn{background:var(--accent);border:none;color:#fff;padding:.4rem 1rem;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.4rem;transition:background .2s;}
+  .refresh-btn:hover{background:#2a6cb0;}
+
+  .nav-bar{background:var(--navy-mid);border-bottom:1px solid rgba(255,255,255,.08);}
+  .nav-inner{max-width:1300px;margin:0 auto;padding:0 2rem;display:flex;overflow-x:auto;scrollbar-width:none;}
+  .nav-inner::-webkit-scrollbar{display:none;}
+  .nav-tab{padding:.7rem 1.2rem;font-size:.82rem;font-weight:500;color:rgba(255,255,255,.5);cursor:grab;border-bottom:2px solid transparent;transition:color .2s,border-color .2s,opacity .15s,background .15s;white-space:nowrap;user-select:none;position:relative;}
+  .nav-tab:hover{color:rgba(255,255,255,.85);}
+  .nav-tab.active{color:var(--accent-light);border-bottom-color:var(--accent-light);}
+  .nav-tab.dragging{opacity:.35;cursor:grabbing;}
+  .nav-tab.drag-over{background:rgba(255,255,255,.1);border-bottom-color:rgba(255,255,255,.4);}
+  .nav-drag-hint{font-size:.62rem;color:rgba(255,255,255,.28);padding:.35rem 1rem;align-self:center;white-space:nowrap;pointer-events:none;letter-spacing:.03em;}
+
+  .main-layout{max-width:1300px;margin:0 auto;padding:1.5rem 2rem;display:grid;grid-template-columns:252px 1fr;gap:1.5rem;align-items:start;}
+
+  .sidebar{display:flex;flex-direction:column;gap:1rem;}
+  .filter-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:var(--shadow);}
+  .filter-card h3{font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.7rem;}
+  .filter-item{display:flex;align-items:center;gap:.45rem;padding:.28rem .5rem;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s;font-size:.81rem;color:var(--text-secondary);user-select:none;}
+  .filter-item:hover{background:var(--surface-3);}
+  .filter-item.active{background:var(--accent-pale);color:var(--navy-light);font-weight:500;}
+  .filter-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .filter-count{margin-left:auto;font-size:.7rem;background:var(--surface-3);color:var(--text-muted);padding:1px 6px;border-radius:10px;}
+  .sort-select{width:100%;padding:.42rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text-primary);background:var(--surface);cursor:pointer;outline:none;}
+  .sort-select:focus{border-color:var(--accent);}
+
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+  .stat-mini{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.6rem .7rem;text-align:center;}
+  .stat-mini .num{font-size:1.25rem;font-weight:600;color:var(--navy);line-height:1;}
+  .stat-mini .lbl{font-size:.67rem;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;}
+
+  .conf-card{background:var(--navy);border-radius:var(--radius);padding:1rem 1.2rem;}
+  .conf-card h3{font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.7rem;}
+  .conf-item{display:flex;align-items:center;gap:.55rem;padding:.48rem 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.81rem;cursor:pointer;text-decoration:none;color:rgba(255,255,255,.78);transition:color .15s;}
+  .conf-item:last-child{border-bottom:none;}
+  .conf-item:hover{color:#fff;}
+  .conf-badge{font-size:.63rem;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;}
+  .conf-date{font-size:.68rem;color:rgba(255,255,255,.4);margin-left:auto;}
+
+  .feed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+  .feed-title{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--navy);}
+  .feed-subtitle{font-size:.81rem;color:var(--text-muted);margin-top:2px;}
+  .view-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;}
+  .view-btn{padding:.32rem .6rem;border:none;background:var(--surface);cursor:pointer;color:var(--text-muted);font-size:.85rem;transition:background .15s,color .15s;}
+  .view-btn.active{background:var(--navy);color:#fff;}
+
+  .article-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid transparent;border-radius:var(--radius);padding:1.05rem 1.2rem;margin-bottom:.55rem;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s;cursor:pointer;animation:fadeIn .3s ease both;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .article-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+
+  .article-meta{display:flex;align-items:center;gap:.45rem;margin-bottom:.45rem;flex-wrap:wrap;}
+  .journal-badge{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.03em;text-transform:uppercase;}
+  .type-badge{font-size:.67rem;padding:2px 7px;border-radius:4px;font-weight:500;background:var(--surface-3);color:var(--text-secondary);}
+  .article-date{font-size:.7rem;color:var(--text-muted);margin-left:auto;}
+  .article-title{font-family:'DM Serif Display',serif;font-size:1.03rem;line-height:1.4;color:var(--navy);margin-bottom:.35rem;}
+  .article-authors{font-size:.77rem;color:var(--text-muted);margin-bottom:.45rem;font-style:italic;}
+  .article-abstract{font-size:.82rem;line-height:1.6;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .article-abstract.expanded{-webkit-line-clamp:unset;}
+  .expand-toggle{font-size:.71rem;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;margin-top:.2rem;font-family:'DM Sans',sans-serif;}
+  .expand-toggle:hover{text-decoration:underline;}
+
+  .article-footer{display:flex;align-items:center;gap:.45rem;margin-top:.7rem;flex-wrap:wrap;}
+  .disease-tag{font-size:.67rem;padding:2px 8px;border-radius:4px;font-weight:500;}
+  .article-links{margin-left:auto;display:flex;gap:.45rem;}
+  .link-btn{font-size:.74rem;padding:.28rem .7rem;border-radius:5px;font-weight:500;text-decoration:none;transition:background .15s,color .15s;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;display:inline-block;}
+  .link-btn-primary{background:var(--navy);color:#fff;}
+  .link-btn-primary:hover{background:var(--navy-light);}
+  .link-btn-secondary{background:var(--surface-3);color:var(--text-secondary);}
+  .link-btn-secondary:hover{color:var(--navy);}
+
+  .loading-state{text-align:center;padding:3rem 1rem;color:var(--text-muted);}
+  .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-progress{font-size:.8rem;color:var(--text-muted);margin-top:.5rem;}
+
+  .error-notice{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius);padding:.85rem 1rem;color:#991b1b;font-size:.82rem;margin-bottom:.75rem;}
+
+  .pagination{display:flex;align-items:center;justify-content:center;gap:.45rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);}
+  .page-btn{padding:.32rem .7rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-secondary);font-size:.81rem;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+  .page-btn:hover{background:var(--surface-3);}
+  .page-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .page-btn:disabled{opacity:.4;cursor:default;}
+
+  .no-results{text-align:center;padding:3rem 1rem;color:var(--text-muted);font-size:.88rem;}
+  .highlight{background:#fef9c3;border-radius:2px;}
+  .conf-portal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;text-align:center;margin-bottom:1rem;}
+  .conf-portal h2{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--navy);margin-bottom:.5rem;}
+  .conf-portal p{font-size:.84rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.6;}
+
+  .digest-section{margin-bottom:2rem;}
+  .digest-section-title{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--navy);border-bottom:2px solid var(--navy);padding-bottom:.35rem;margin-bottom:.7rem;}
+
+  /* Reviewed state */
+  .article-card.reviewed{background:#f8fdf9;border-color:#bbf7d0;}
+  .article-card.reviewed .article-title{color:#4a5a7a;}
+  .reviewed-checkbox{display:flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none;padding:.18rem .55rem .18rem .4rem;border-radius:5px;border:1px solid var(--border);background:var(--surface);font-size:.72rem;font-weight:500;color:var(--text-muted);transition:background .15s,border-color .15s,color .15s;flex-shrink:0;white-space:nowrap;}
+  .reviewed-checkbox:hover{border-color:#86efac;background:#f0fdf4;color:#166534;}
+  .reviewed-checkbox.checked{border-color:#4ade80;background:#f0fdf4;color:#166534;}
+  .reviewed-checkbox input{accent-color:#16a34a;width:13px;height:13px;cursor:pointer;margin:0;}
+
+  /* Favorite state */
+  .article-card.favorited{border-top:2px solid #f59e0b;}
+  .fav-btn{display:flex;align-items:center;gap:.35rem;cursor:pointer;user-select:none;padding:.18rem .55rem .18rem .45rem;border-radius:5px;border:1px solid var(--border);background:var(--surface);font-size:.72rem;font-weight:500;color:var(--text-muted);transition:background .15s,border-color .15s,color .15s;flex-shrink:0;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+  .fav-btn:hover{border-color:#fcd34d;background:#fffbeb;color:#b45309;}
+  .fav-btn.active{border-color:#f59e0b;background:#fffbeb;color:#b45309;}
+  .fav-star{font-size:13px;line-height:1;transition:transform .2s;}
+  .fav-btn.active .fav-star{transform:scale(1.2);}
+
+  /* Dismiss / remove button */
+  .dismiss-btn{display:flex;align-items:center;gap:.3rem;cursor:pointer;user-select:none;padding:.18rem .5rem .18rem .4rem;border-radius:5px;border:1px solid var(--border);background:var(--surface);font-size:.72rem;font-weight:500;color:var(--text-muted);transition:background .15s,border-color .15s,color .15s;flex-shrink:0;white-space:nowrap;font-family:'DM Sans',sans-serif;}
+  .dismiss-btn:hover{border-color:#fca5a5;background:#fef2f2;color:#dc2626;}
+  .article-card.dismissing{opacity:0;transform:translateX(30px) scale(0.97);transition:opacity .3s ease,transform .3s ease,max-height .35s ease .25s,margin .35s ease .25s,padding .35s ease .25s;max-height:0;margin-bottom:0;padding:0;overflow:hidden;}
+
+  /* Restore toast */
+  .restore-toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:.65rem 1.1rem;border-radius:var(--radius);box-shadow:var(--shadow-md);display:flex;align-items:center;gap:.75rem;font-size:.82rem;z-index:999;animation:slideUp .25s ease;transition:opacity .3s;}
+  .restore-toast.hiding{opacity:0;}
+  @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .restore-btn{background:var(--accent);border:none;color:#fff;padding:.25rem .7rem;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;cursor:pointer;}
+  .restore-btn:hover{background:#2a6cb0;}
+
+  /* Date filter */
+  .date-inputs{display:flex;flex-direction:column;gap:.4rem;}
+  .date-row{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--text-muted);}
+  .date-row label{width:32px;flex-shrink:0;}
+  .date-input{flex:1;padding:.3rem .5rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:.78rem;color:var(--text-primary);background:var(--surface);outline:none;}
+  .date-input:focus{border-color:var(--accent);}
+
+  /* Disease filter checkboxes */
+  .disease-filter-item{display:flex;align-items:center;gap:.45rem;padding:.25rem .5rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.8rem;color:var(--text-secondary);user-select:none;transition:background .15s;}
+  .disease-filter-item:hover{background:var(--surface-3);}
+  .disease-filter-item input{accent-color:var(--accent);width:13px;height:13px;cursor:pointer;margin:0;flex-shrink:0;}
+  .disease-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+  /* Active filters bar */
+  .active-filters{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.75rem;}
+  .filter-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:20px;background:var(--accent-pale);color:var(--navy-light);font-size:.72rem;font-weight:500;border:1px solid #bfdbfe;}
+  .filter-chip-remove{cursor:pointer;font-size:.85rem;line-height:1;opacity:.6;}
+  .filter-chip-remove:hover{opacity:1;}
+  .clear-all-btn{font-size:.72rem;color:var(--text-muted);background:none;border:none;cursor:pointer;padding:.2rem .4rem;text-decoration:underline;font-family:'DM Sans',sans-serif;}
+  .clear-all-btn:hover{color:var(--navy);}
+
+
+  /* ── Calendar ─────────────────────────────────────────────────── */
+  .cal-wrap{display:flex;flex-direction:column;gap:1.5rem;}
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem;}
+  .cal-nav-title{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--navy);}
+  .cal-nav-btns{display:flex;gap:.4rem;}
+  .cal-nav-btn{padding:.3rem .8rem;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-secondary);font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
+  .cal-nav-btn:hover{background:var(--surface-3);}
+  .cal-nav-btn.today{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+  .cal-grid-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);background:var(--navy);border-bottom:1px solid var(--border);}
+  .cal-dow{padding:.55rem 0;text-align:center;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.6);}
+  .cal-days{display:grid;grid-template-columns:repeat(7,1fr);}
+  .cal-day{min-height:90px;padding:.4rem .5rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:relative;vertical-align:top;}
+  .cal-day:nth-child(7n){border-right:none;}
+  .cal-day.other-month{background:#fafbfd;}
+  .cal-day.today-cell{background:#eff6ff;}
+  .cal-day-num{font-size:.78rem;font-weight:600;color:var(--text-muted);margin-bottom:.25rem;display:flex;align-items:center;gap:.3rem;}
+  .cal-day.today-cell .cal-day-num{color:var(--accent);}
+  .today-dot{width:20px;height:20px;background:var(--accent);border-radius:50%;color:#fff;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+  .cal-event{font-size:.65rem;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4;transition:opacity .15s;}
+  .cal-event:hover{opacity:.82;}
+  .cal-event.start{border-radius:4px 0 0 4px;}
+  .cal-event.end{border-radius:0 4px 4px 0;}
+  .cal-event.mid{border-radius:0;}
+  .cal-event.single{border-radius:4px;}
+  .cal-event.continues::after{content:'›';margin-left:2px;opacity:.7;}
+
+  .cal-legend{display:flex;flex-wrap:wrap;gap:.5rem .9rem;padding:.85rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+  .cal-legend-item{display:flex;align-items:center;gap:.35rem;font-size:.75rem;color:var(--text-secondary);}
+  .cal-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+  .cal-upcoming{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  .cal-upcoming-title{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:.75rem 1rem .5rem;border-bottom:1px solid var(--border);}
+  .cal-event-row{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;text-decoration:none;}
+  .cal-event-row:last-child{border-bottom:none;}
+  .cal-event-row:hover{background:var(--surface-2);}
+  .cal-event-bar{width:4px;border-radius:2px;align-self:stretch;flex-shrink:0;min-height:36px;}
+  .cal-event-info{flex:1;}
+  .cal-event-name{font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:.15rem;}
+  .cal-event-dates{font-size:.75rem;color:var(--text-muted);margin-bottom:.15rem;}
+  .cal-event-loc{font-size:.73rem;color:var(--text-secondary);}
+  .cal-event-tag{font-size:.65rem;font-weight:600;padding:1px 6px;border-radius:3px;align-self:flex-start;flex-shrink:0;margin-top:2px;}
+  .cal-countdown{font-size:.7rem;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--surface-3);color:var(--text-secondary);align-self:center;white-space:nowrap;}
+  .cal-countdown.soon{background:#fef3c7;color:#92400e;}
+  .cal-countdown.active{background:#dcfce7;color:#166534;}
+  .cal-countdown.past{background:var(--surface-3);color:var(--text-muted);}
+
+
+  /* ── FDA Approvals ───────────────────────────────────────────── */
+  .fda-filters{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;align-items:center;}
+  .fda-filter-btn{padding:.3rem .8rem;border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text-secondary);font-size:.75rem;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+  .fda-filter-btn:hover{border-color:var(--accent);color:var(--navy);}
+  .fda-filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .fda-search{flex:1;min-width:180px;padding:.35rem .75rem;border:1px solid var(--border);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:.8rem;outline:none;color:var(--text-primary);}
+  .fda-search:focus{border-color:var(--accent);}
+
+  .fda-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:1.1rem 1.25rem;margin-bottom:.6rem;box-shadow:var(--shadow);transition:box-shadow .2s,transform .15s,opacity .3s,max-height .35s;animation:fadeIn .3s ease both;}
+  .fda-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+  .fda-card.fda-reviewed{background:#f8fdf9;border-color:#bbf7d0;border-left-color:#16a34a;}
+  .fda-card.fda-favorited{border-top:2px solid #f59e0b;}
+  .fda-card.fda-dismissed{display:none;}
+  .fda-card.dismissing{opacity:0;transform:translateX(30px);transition:opacity .3s,transform .3s,max-height .4s ease .25s,margin .4s ease .25s,padding .4s ease .25s;max-height:0 !important;margin-bottom:0;padding:0;overflow:hidden;}
+
+  .fda-header{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.55rem;}
+  .fda-drug-name{font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--navy);line-height:1.3;}
+  .fda-generic{font-size:.78rem;color:var(--text-muted);font-style:italic;margin-top:.1rem;}
+  .fda-badges{display:flex;flex-wrap:wrap;gap:.35rem;margin-left:auto;flex-shrink:0;}
+  .fda-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;}
+  .fda-date-badge{font-size:.7rem;font-weight:600;color:var(--text-muted);background:var(--surface-3);padding:2px 8px;border-radius:4px;white-space:nowrap;}
+
+  .fda-indication{font-size:.87rem;line-height:1.6;color:var(--text-secondary);margin-bottom:.6rem;}
+  .fda-indication strong{color:var(--navy);font-weight:600;}
+
+  .fda-meta{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;font-size:.75rem;color:var(--text-muted);margin-bottom:.65rem;}
+  .fda-meta span{display:flex;align-items:center;gap:.3rem;}
+
+  .fda-footer{display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;padding-top:.6rem;border-top:1px solid var(--border);}
+  .fda-disease-tag{font-size:.67rem;padding:2px 8px;border-radius:4px;font-weight:500;}
+
+  .fda-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:1rem;}
+  .fda-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.5rem .7rem;text-align:center;}
+  .fda-stat .num{font-size:1.3rem;font-weight:700;color:var(--navy);line-height:1;}
+  .fda-stat .lbl{font-size:.63rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+  .fda-source-badge{font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:3px;text-transform:uppercase;letter-spacing:.03em;}
+  .fda-source-live{background:#dcfce7;color:#166534;}
+  .fda-source-curated{background:#f1f5f9;color:#64748b;}
+  .fda-live-banner{display:flex;align-items:center;gap:.5rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:.55rem .85rem;font-size:.78rem;color:#1e40af;margin-bottom:.9rem;}
+  .fda-live-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0;animation:fdaPulse 2s infinite;}
+  @keyframes fdaPulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .fda-loading-row{display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:var(--text-muted);padding:.5rem 0;}
+  .fda-mini-spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+
+  @media(max-width:900px){.main-layout{grid-template-columns:1fr;}.sidebar{display:none;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <span class="logo-main">HemOnc Hub</span>
+      <span class="logo-sub">Literature</span>
+    </a>
+    <div class="header-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search titles, authors, keywords…" autocomplete="off">
+    </div>
+    <div class="header-right">
+      <span class="last-updated" id="lastUpdated">Loading…</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshAll()">↻ Refresh</button>
+    </div>
+  </div>
+</header>
+
+<div class="nav-bar">
+  <div class="nav-inner" id="navInner">
+    <span class="nav-drag-hint">drag to reorder</span>
+  </div>
+</div>
+
+<div class="main-layout">
+  <aside class="sidebar">
+    <div class="stats-row">
+      <div class="stat-mini"><div class="num" id="statTotal">—</div><div class="lbl">Articles</div></div>
+      <div class="stat-mini"><div class="num" id="statNew">—</div><div class="lbl">This Week</div></div>
+      <div class="stat-mini"><div class="num" id="statReviewed">0</div><div class="lbl">Reviewed</div></div>
+      <div class="stat-mini"><div class="num" id="statUnreviewed">—</div><div class="lbl">Unread</div></div>
+      <div class="stat-mini" style="grid-column:1/-1;background:#fffbeb;border-color:#fcd34d;"><div class="num" id="statFavorites" style="color:#b45309">0</div><div class="lbl" style="color:#b45309">Favorites</div></div>
+      <div class="stat-mini" style="grid-column:1/-1;background:#fef2f2;border-color:#fecaca;"><div class="num" id="statDismissed" style="color:#dc2626">0</div><div class="lbl" style="color:#dc2626">Hidden</div></div>
+    </div>
+    <div class="filter-card">
+      <h3>Read Status</h3>
+      <div id="reviewFilters">
+        <div class="filter-item active" onclick="toggleReviewFilter(this,'all')">All articles</div>
+        <div class="filter-item" onclick="toggleReviewFilter(this,'unreviewed')">Unreviewed only</div>
+        <div class="filter-item" onclick="toggleReviewFilter(this,'reviewed')">Reviewed only</div>
+        <div class="filter-item" onclick="toggleReviewFilter(this,'favorites')">★ Favorites only</div>
+        <div class="filter-item" onclick="toggleReviewFilter(this,'dismissed')">🚫 Hidden articles</div>
+      </div>
+    </div>
+    <div class="filter-card">
+      <h3>Journals</h3>
+      <div id="journalFilters"></div>
+    </div>
+    <div class="filter-card">
+      <h3>Article Type</h3>
+      <div id="typeFilters">
+        <div class="filter-item active" onclick="toggleType(this,'all')">All types</div>
+        <div class="filter-item" onclick="toggleType(this,'Clinical Trial')">Clinical Trial</div>
+        <div class="filter-item" onclick="toggleType(this,'Review')">Review / Meta-analysis</div>
+        <div class="filter-item" onclick="toggleType(this,'Original Research')">Original Research</div>
+        <div class="filter-item" onclick="toggleType(this,'Case Report')">Case Report</div>
+      </div>
+    </div>
+    <div class="filter-card">
+      <h3>Date Range</h3>
+      <div class="date-inputs">
+        <div class="date-row"><label>From</label><input type="month" id="dateFrom" class="date-input" onchange="applyFilters()"></div>
+        <div class="date-row"><label>To</label><input type="month" id="dateTo" class="date-input" onchange="applyFilters()"></div>
+        <button class="clear-all-btn" onclick="clearDateFilter()" style="text-align:left;margin-top:.1rem">Clear dates</button>
+      </div>
+    </div>
+    <div class="filter-card">
+      <h3>Disease / Topic</h3>
+      <div id="diseaseFilters"></div>
+    </div>
+    <div class="filter-card">
+      <h3>Sort By</h3>
+      <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+        <option value="date">Most Recent</option>
+        <option value="oldest">Oldest First</option>
+        <option value="journal">Journal (A–Z)</option>
+        <option value="title">Title (A–Z)</option>
+      </select>
+    </div>
+    <div class="conf-card" id="sidebarConfCard">
+      <h3>Conference Portals</h3>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.35);padding:.25rem 0">Loading…</div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="feed-header">
+      <div>
+        <div class="feed-title" id="feedTitle">Latest in Hematology &amp; Oncology</div>
+        <div class="feed-subtitle" id="feedSubtitle">Fetching articles…</div>
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('feed',this)" title="Feed">≡</button>
+        <button class="view-btn" onclick="setView('digest',this)" title="Digest">⊞</button>
+      </div>
+    </div>
+    <div id="activeFiltersBar" class="active-filters" style="display:none"></div>
+    <div id="feedContainer">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div>Connecting to PubMed…</div>
+        <div class="loading-progress" id="loadingProgress"></div>
+      </div>
+    </div>
+    <div class="pagination" id="pagination" style="display:none"></div>
+  </main>
+</div>
+
+<script>
+// ── Journal definitions ──────────────────────────────────────────────────────
+// jourid = exact abbreviation PubMed uses in [jour] field (from NLM catalog)
+const JOURNALS = [
+  { id:'nejm',  name:'NEJM',            jourid:'N Engl J Med',                   color:'#1e3a6e', bg:'#dbeafe' },
+  { id:'jco',   name:'JCO',             jourid:'J Clin Oncol',                   color:'#7f1d1d', bg:'#fee2e2' },
+  { id:'blood', name:'Blood',           jourid:'Blood',                           color:'#991b1b', bg:'#fef2f2' },
+  { id:'lo',    name:'Lancet Oncol',    jourid:'Lancet Oncol',                   color:'#4338ca', bg:'#ede9fe' },
+  { id:'nm',    name:'Nat Med',         jourid:'Nat Med',                        color:'#14532d', bg:'#dcfce7' },
+  { id:'cc',    name:'Cancer Cell',     jourid:'Cancer Cell',                    color:'#92400e', bg:'#fef3c7' },
+  { id:'cd',    name:'Cancer Discov',   jourid:'Cancer Discov',                  color:'#6b21a8', bg:'#fae8ff' },
+  { id:'haem',  name:'Haematologica',   jourid:'Haematologica',                  color:'#075985', bg:'#e0f2fe' },
+  { id:'bjh',   name:'Br J Haematol',   jourid:'Br J Haematol',                  color:'#581c87', bg:'#f3e8ff' },
+];
+
+const DISEASE_COLORS = {
+  'AML':           {bg:'#fee2e2',color:'#991b1b'},
+  'ALL':           {bg:'#fef3c7',color:'#92400e'},
+  'CLL':           {bg:'#dbeafe',color:'#1e40af'},
+  'CML':           {bg:'#d1fae5',color:'#065f46'},
+  'Lymphoma':      {bg:'#ede9fe',color:'#5b21b6'},
+  'Myeloma':       {bg:'#fce7f3',color:'#9d174d'},
+  'MDS':           {bg:'#e0f2fe',color:'#075985'},
+  'MPN':           {bg:'#ecfccb',color:'#3f6212'},
+  'Solid Tumor':   {bg:'#f1f5f9',color:'#334155'},
+  'Hematology/Oncology': {bg:'#f5f3ff',color:'#4c1d95'},
+};
+
+// ── State ────────────────────────────────────────────────────────────────────
+let allArticles = [];
+let filteredArticles = [];
+let activeJournals = new Set(JOURNALS.map(j=>j.id));
+let activeType = 'all';
+let activeReviewFilter = 'all';
+let activeDiseases = new Set(); // empty = all diseases
+let currentView = 'feed';
+let currentTab = 'all';
+let currentPage = 1;
+const PAGE_SIZE = 12;
+let searchQuery = '';
+
+// ── Reviewed persistence (localStorage) ─────────────────────────────────────
+const STORAGE_KEY = 'hemonc_reviewed_pmids';
+function loadReviewed(){
+  try{ return new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')); }
+  catch(e){ return new Set(); }
+}
+function saveReviewed(set){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify([...set])); }catch(e){}
+}
+let reviewedPmids = loadReviewed();
+
+// ── Favorites persistence (localStorage) ─────────────────────────────────────
+const FAV_KEY = 'hemonc_favorite_pmids';
+function loadFavorites(){
+  try{ return new Set(JSON.parse(localStorage.getItem(FAV_KEY)||'[]')); }
+  catch(e){ return new Set(); }
+}
+function saveFavorites(set){
+  try{ localStorage.setItem(FAV_KEY, JSON.stringify([...set])); }catch(e){}
+}
+let favoritePmids = loadFavorites();
+
+function toggleFavorite(pmid){
+  if(favoritePmids.has(pmid)) favoritePmids.delete(pmid);
+  else favoritePmids.add(pmid);
+  saveFavorites(favoritePmids);
+  updateReviewedStats();
+}
+
+// ── Dismissed persistence (localStorage) ─────────────────────────────────────
+const DISMISS_KEY = 'hemonc_dismissed_pmids';
+function loadDismissed(){
+  try{ return new Set(JSON.parse(localStorage.getItem(DISMISS_KEY)||'[]')); }
+  catch(e){ return new Set(); }
+}
+function saveDismissed(set){
+  try{ localStorage.setItem(DISMISS_KEY, JSON.stringify([...set])); }catch(e){}
+}
+let dismissedPmids = loadDismissed();
+let lastDismissed = null; // for undo
+
+function dismissArticle(pmid){
+  lastDismissed = pmid;
+  dismissedPmids.add(pmid);
+  saveDismissed(dismissedPmids);
+  updateReviewedStats();
+  showRestoreToast(pmid);
+}
+
+function restoreArticle(pmid){
+  dismissedPmids.delete(pmid);
+  saveDismissed(dismissedPmids);
+  updateReviewedStats();
+  hideRestoreToast();
+  applyFilters();
+}
+
+let toastTimer = null;
+function showRestoreToast(pmid){
+  hideRestoreToast();
+  const toast = document.createElement('div');
+  toast.className = 'restore-toast';
+  toast.id = 'restoreToast';
+  const article = allArticles.find(a=>a.pmid===pmid);
+  const shortTitle = article ? article.title.substring(0,55)+'…' : 'Article';
+  toast.innerHTML = `<span>Hidden: <em>${shortTitle}</em></span><button class="restore-btn" onclick="restoreArticle('${pmid}')">Undo</button>`;
+  document.body.appendChild(toast);
+  toastTimer = setTimeout(()=>{ hideRestoreToast(); }, 6000);
+}
+
+function hideRestoreToast(){
+  clearTimeout(toastTimer);
+  const t = document.getElementById('restoreToast');
+  if(t){ t.classList.add('hiding'); setTimeout(()=>t.remove(), 300); }
+}
+
+function toggleReviewed(pmid){
+  if(reviewedPmids.has(pmid)) reviewedPmids.delete(pmid);
+  else reviewedPmids.add(pmid);
+  saveReviewed(reviewedPmids);
+  updateReviewedStats();
+}
+
+function updateReviewedStats(){
+  const rev = allArticles.filter(a=>reviewedPmids.has(a.pmid)).length;
+  const fav = allArticles.filter(a=>favoritePmids.has(a.pmid)).length;
+  const dis = dismissedPmids.size;
+  document.getElementById('statReviewed').textContent = rev;
+  document.getElementById('statUnreviewed').textContent = allArticles.length - rev - dis;
+  document.getElementById('statFavorites').textContent = fav;
+  document.getElementById('statDismissed').textContent = dis;
+}
+
+// ── PubMed helpers ───────────────────────────────────────────────────────────
+const PUBMED_BASE = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+
+async function delay(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+async function fetchIds(jourid, retmax=15){
+  // Use [ta] (Title Abbreviation) tag — most reliable for journal filtering
+  const term = encodeURIComponent(`"${jourid}"[ta]`);
+  const url = `${PUBMED_BASE}esearch.fcgi?db=pubmed&term=${term}&retmax=${retmax}&sort=pub+date&retmode=json`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(`esearch HTTP ${r.status}`);
+  const d = await r.json();
+  return d.esearchresult?.idlist || [];
+}
+
+async function fetchSummaries(ids){
+  if(!ids.length) return {};
+  const url = `${PUBMED_BASE}esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error(`esummary HTTP ${r.status}`);
+  const d = await r.json();
+  return d.result || {};
+}
+
+// ── Disease guesser ──────────────────────────────────────────────────────────
+function guessDisease(text){
+  const t = text.toLowerCase();
+  if(/\baml\b|acute myeloid/.test(t)) return 'AML';
+  if(/\ball\b|acute lymphoblastic/.test(t)) return 'ALL';
+  if(/\bcll\b|chronic lymphocytic/.test(t)) return 'CLL';
+  if(/\bcml\b|chronic myeloid/.test(t)) return 'CML';
+  if(/lymphoma|dlbcl|hodgkin|follicular|mantle.cell|diffuse.large/.test(t)) return 'Lymphoma';
+  if(/myeloma|multiple myeloma|smoldering/.test(t)) return 'Myeloma';
+  if(/\bmds\b|myelodysplastic/.test(t)) return 'MDS';
+  if(/\bmpn\b|myeloproliferative|polycythemia|myelofibrosis|essential thrombocythem/.test(t)) return 'MPN';
+  if(/lung|breast|colon|colorectal|prostate|renal|melanoma|hepatocellular|gastric|pancreatic|ovarian|cervical/.test(t)) return 'Solid Tumor';
+  return 'Hematology/Oncology';
+}
+
+function guessType(pubtypes){
+  if(!pubtypes) return 'Original Research';
+  const t = (Array.isArray(pubtypes)?pubtypes:[pubtypes]).join(' ').toLowerCase();
+  if(/clinical trial/.test(t)) return 'Clinical Trial';
+  if(/review|meta.analysis|systematic review/.test(t)) return 'Review';
+  if(/case report/.test(t)) return 'Case Report';
+  return 'Original Research';
+}
+
+function parseDate(raw){
+  if(!raw) return '';
+  // Try to extract year and month at minimum
+  const m = raw.match(/(\d{4})/);
+  return m ? raw : '';
+}
+
+// ── Load all journals sequentially to respect rate limit ─────────────────────
+async function loadAllArticles(){
+  document.getElementById('feedContainer').innerHTML =
+    `<div class="loading-state"><div class="spinner"></div><div>Connecting to PubMed…</div><div class="loading-progress" id="loadingProgress"></div></div>`;
+  document.getElementById('pagination').style.display='none';
+  allArticles = [];
+
+  for(let i=0; i<JOURNALS.length; i++){
+    const j = JOURNALS[i];
+    document.getElementById('loadingProgress').textContent =
+      `Loading ${j.name} (${i+1}/${JOURNALS.length})…`;
+    try {
+      const ids = await fetchIds(j.jourid, 15);
+      if(ids.length){
+        const summaries = await fetchSummaries(ids);
+        for(const id of ids){
+          const a = summaries[id];
+          if(!a || !a.title || a.title==='') continue;
+          const cleanTitle = a.title.replace(/<[^>]+>/g,'').replace(/\.$/,'');
+          if(!cleanTitle) continue;
+          const authors = (a.authors||[]).slice(0,4).map(au=>au.name).join(', ')
+            + ((a.authors||[]).length>4?' et al.':'');
+          allArticles.push({
+            id,
+            pmid: id,
+            title: cleanTitle,
+            authors: authors || 'Authors not listed',
+            journal: j.name,
+            journalId: j.id,
+            color: j.color,
+            bg: j.bg,
+            date: a.pubdate || a.epubdate || '',
+            dateSort: a.sortpubdate || a.pubdate || '',
+            abstract: (a.sorttitle||'').replace(/<[^>]+>/g,''),
+            articleType: guessType(a.pubtype),
+            diseaseTag: guessDisease(cleanTitle),
+            url: `https://pubmed.ncbi.nlm.nih.gov/${id}/`,
+          });
+        }
+      }
+    } catch(e){
+      console.warn(`Failed to load ${j.name}:`, e);
+    }
+    // Small delay between journals to respect NCBI rate limit (3 req/s unauthenticated)
+    if(i < JOURNALS.length-1) await delay(350);
+  }
+
+  // Sort by date descending
+  allArticles.sort((a,b)=>b.dateSort.localeCompare(a.dateSort));
+
+  // Stats
+  const now = new Date();
+  const weekAgo = now - 7*24*3600*1000;
+  const thisWeek = allArticles.filter(a=>{
+    const d = new Date(a.dateSort);
+    return !isNaN(d) && d > weekAgo;
+  }).length;
+  document.getElementById('statTotal').textContent = allArticles.length;
+  document.getElementById('statNew').textContent = thisWeek || '—';
+  document.getElementById('lastUpdated').textContent =
+    'Updated ' + now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  buildJournalFilters();
+  buildDiseaseFilters();
+  updateReviewedStats();
+  applyFilters();
+}
+
+// ── Filter UI ────────────────────────────────────────────────────────────────
+function buildJournalFilters(){
+  // Build the filter items once; counts are kept live via updateJournalCounts()
+  document.getElementById('journalFilters').innerHTML = JOURNALS.map(j=>`
+    <div class="filter-item${activeJournals.has(j.id)?' active':''}" data-jid="${j.id}" onclick="toggleJournal(this,'${j.id}')">
+      <span class="filter-dot" style="background:${j.color}"></span>
+      ${j.name}
+      <span class="filter-count" id="jcount-${j.id}">0</span>
+    </div>`).join('');
+  updateJournalCounts();
+}
+
+function updateJournalCounts(){
+  // Count articles per journal that pass ALL active filters except the journal filter itself,
+  // so the count reflects what you'd see if you toggled that journal on.
+  JOURNALS.forEach(j=>{
+    const el = document.getElementById('jcount-'+j.id);
+    if(!el) return;
+    // Count from allArticles (not filtered) so numbers reflect total available
+    const count = allArticles.filter(a => a.journalId === j.id).length;
+    el.textContent = count;
+  });
+}
+
+function buildDiseaseFilters(){
+  const DISEASE_LIST = ['AML','ALL','CLL','CML','Lymphoma','Myeloma','MDS','MPN','Solid Tumor','Hematology/Oncology'];
+  const counts = {};
+  DISEASE_LIST.forEach(d=>{ counts[d]=allArticles.filter(a=>a.diseaseTag===d).length; });
+  document.getElementById('diseaseFilters').innerHTML = DISEASE_LIST.map(d=>{
+    const dc = DISEASE_COLORS[d]||{bg:'#f5f3ff',color:'#4c1d95'};
+    return `<label class="disease-filter-item">
+      <input type="checkbox" onchange="toggleDisease('${d}',this)" ${activeDiseases.has(d)?'checked':''}>
+      <span class="disease-dot" style="background:${dc.color}"></span>
+      ${d} <span class="filter-count" style="margin-left:auto">${counts[d]||0}</span>
+    </label>`;
+  }).join('');
+}
+
+function toggleDisease(disease, cb){
+  if(cb.checked) activeDiseases.add(disease);
+  else activeDiseases.delete(disease);
+  currentPage=1; applyFilters(); updateFilterChips();
+}
+
+function clearDateFilter(){
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+  currentPage=1; applyFilters(); updateFilterChips();
+}
+
+function clearAllFilters(){
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+  activeDiseases.clear();
+  activeType='all';
+  activeReviewFilter='all';
+  activeJournals = new Set(JOURNALS.map(j=>j.id));
+  document.querySelectorAll('#typeFilters .filter-item').forEach((e,i)=>e.classList.toggle('active',i===0));
+  document.querySelectorAll('#reviewFilters .filter-item').forEach((e,i)=>e.classList.toggle('active',i===0));
+  document.querySelectorAll('#journalFilters .filter-item').forEach(e=>e.classList.add('active'));
+  document.querySelectorAll('#diseaseFilters input').forEach(cb=>cb.checked=false);
+  currentPage=1; applyFilters(); updateFilterChips();
+}
+
+function updateFilterChips(){
+  const bar = document.getElementById('activeFiltersBar');
+  const chips = [];
+  const dateFrom = document.getElementById('dateFrom').value;
+  const dateTo = document.getElementById('dateTo').value;
+  if(dateFrom) chips.push({label:`From: ${dateFrom}`, clear:()=>{document.getElementById('dateFrom').value='';applyFilters();updateFilterChips();}});
+  if(dateTo)   chips.push({label:`To: ${dateTo}`,     clear:()=>{document.getElementById('dateTo').value='';applyFilters();updateFilterChips();}});
+  activeDiseases.forEach(d=>chips.push({label:d, clear:()=>{activeDiseases.delete(d);document.querySelectorAll('#diseaseFilters input').forEach(cb=>{if(cb.closest('label').textContent.trim().startsWith(d)) cb.checked=false;});applyFilters();updateFilterChips();}}));
+  if(activeType!=='all') chips.push({label:`Type: ${activeType}`, clear:()=>{activeType='all';document.querySelectorAll('#typeFilters .filter-item').forEach((e,i)=>e.classList.toggle('active',i===0));applyFilters();updateFilterChips();}});
+  if(activeReviewFilter!=='all') chips.push({label:`Status: ${activeReviewFilter}`, clear:()=>{activeReviewFilter='all';document.querySelectorAll('#reviewFilters .filter-item').forEach((e,i)=>e.classList.toggle('active',i===0));applyFilters();updateFilterChips();}});
+  if(!chips.length){ bar.style.display='none'; bar.innerHTML=''; return; }
+  bar.style.display='flex';
+  bar.innerHTML = chips.map((c,i)=>`<span class="filter-chip">${c.label}<span class="filter-chip-remove" data-idx="${i}">✕</span></span>`).join('')
+    + `<button class="clear-all-btn" onclick="clearAllFilters()">Clear all</button>`;
+  bar.querySelectorAll('.filter-chip-remove').forEach(btn=>{
+    btn.addEventListener('click',()=>{ chips[+btn.dataset.idx].clear(); });
+  });
+}
+
+function toggleJournal(el, jid){
+  if(activeJournals.has(jid)){ activeJournals.delete(jid); el.classList.remove('active'); }
+  else{ activeJournals.add(jid); el.classList.add('active'); }
+  currentPage=1; applyFilters();
+}
+
+function toggleReviewFilter(el, filter){
+  document.querySelectorAll('#reviewFilters .filter-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  activeReviewFilter=filter; currentPage=1; applyFilters();
+}
+
+function toggleType(el, type){
+  document.querySelectorAll('#typeFilters .filter-item').forEach(e=>e.classList.remove('active'));
+  el.classList.add('active');
+  activeType=type; currentPage=1; applyFilters();
+}
+
+function applyFilters(){
+  let arts = allArticles.filter(a=>activeJournals.has(a.journalId));
+  // Show dismissed articles only when explicitly viewing hidden; exclude them otherwise
+  if(activeReviewFilter==='dismissed'){
+    arts = arts.filter(a=>dismissedPmids.has(a.pmid));
+  } else {
+    arts = arts.filter(a=>!dismissedPmids.has(a.pmid));
+    if(activeReviewFilter==='reviewed') arts = arts.filter(a=>reviewedPmids.has(a.pmid));
+    if(activeReviewFilter==='unreviewed') arts = arts.filter(a=>!reviewedPmids.has(a.pmid));
+    if(activeReviewFilter==='favorites') arts = arts.filter(a=>favoritePmids.has(a.pmid));
+  }
+  if(activeDiseases.size>0) arts = arts.filter(a=>activeDiseases.has(a.diseaseTag));
+  // Date range filter
+  const dateFrom = document.getElementById('dateFrom')?.value;
+  const dateTo   = document.getElementById('dateTo')?.value;
+  if(dateFrom) arts = arts.filter(a=>{ const s=a.dateSort||a.date; return s && s.substring(0,7) >= dateFrom; });
+  if(dateTo)   arts = arts.filter(a=>{ const s=a.dateSort||a.date; return s && s.substring(0,7) <= dateTo; });
+  if(searchQuery.trim()){
+    const q=searchQuery.toLowerCase();
+    arts=arts.filter(a=>a.title.toLowerCase().includes(q)||a.authors.toLowerCase().includes(q));
+  }
+  const sort = document.getElementById('sortSelect')?.value || 'date';
+  if(sort==='journal') arts.sort((a,b)=>a.journal.localeCompare(b.journal));
+  else if(sort==='oldest') arts.sort((a,b)=>a.dateSort.localeCompare(b.dateSort));
+  else if(sort==='title') arts.sort((a,b)=>a.title.localeCompare(b.title));
+  else arts.sort((a,b)=>b.dateSort.localeCompare(a.dateSort));
+  filteredArticles=arts;
+  document.getElementById('feedSubtitle').textContent=
+    `${filteredArticles.length} article${filteredArticles.length!==1?'s':''} found`;
+  updateFilterChips();
+  updateJournalCounts();
+  renderFeed();
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function renderFeed(){
+  if(currentView==='digest'){ renderDigest(); return; }
+  const container=document.getElementById('feedContainer');
+  if(!filteredArticles.length){
+    container.innerHTML=`<div class="no-results">No articles match your current filters.</div>`;
+    document.getElementById('pagination').style.display='none';
+    return;
+  }
+  const totalPages=Math.ceil(filteredArticles.length/PAGE_SIZE);
+  if(currentPage>totalPages) currentPage=1;
+  const slice=filteredArticles.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
+  container.innerHTML=slice.map((a,i)=>cardHTML(a,i)).join('');
+  renderPagination(totalPages);
+
+  container.querySelectorAll('.expand-toggle').forEach(btn=>{
+    btn.onclick=function(e){
+      e.stopPropagation();
+      const abs=this.previousElementSibling;
+      abs.classList.toggle('expanded');
+      this.textContent=abs.classList.contains('expanded')?'Show less':'Read more';
+    };
+  });
+  container.querySelectorAll('.article-card').forEach(card=>{
+    card.onclick=function(e){
+      if(e.target.closest('a')||e.target.closest('button')) return;
+      window.open(this.dataset.url,'_blank');
+    };
+  });
+}
+
+function handleDismiss(btn, pmid){
+  const card = btn.closest('.article-card');
+  card.classList.add('dismissing');
+  setTimeout(()=>{
+    dismissArticle(pmid);
+    applyFilters();
+  }, 320);
+}
+
+function handleDismiss(btn, pmid){
+  const card = btn.closest('.article-card');
+  card.classList.add('dismissing');
+  setTimeout(()=>{
+    dismissArticle(pmid);
+    applyFilters();
+  }, 320);
+}
+
+function handleFavoriteChange(btn, pmid){
+  toggleFavorite(pmid);
+  const isNowFav = favoritePmids.has(pmid);
+  btn.classList.toggle('active', isNowFav);
+  btn.querySelector('.fav-star').textContent = isNowFav ? '★' : '☆';
+  btn.closest('.article-card').classList.toggle('favorited', isNowFav);
+  if(activeReviewFilter==='favorites'){
+    setTimeout(()=>{ currentPage=1; applyFilters(); }, 400);
+  }
+}
+
+function handleReviewedChange(checkbox, pmid){
+  const label = checkbox.closest('.reviewed-checkbox');
+  const card = checkbox.closest('.article-card');
+  toggleReviewed(pmid);
+  const isNowReviewed = reviewedPmids.has(pmid);
+  label.classList.toggle('checked', isNowReviewed);
+  card.classList.toggle('reviewed', isNowReviewed);
+  // If filtering by review status, re-render after a brief moment so the card fades out gracefully
+  if(activeReviewFilter !== 'all'){
+    setTimeout(()=>{ currentPage=1; applyFilters(); }, 400);
+  }
+}
+
+function hl(text){
+  if(!searchQuery.trim()) return text;
+  const q=searchQuery.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return text.replace(new RegExp(q,'gi'),m=>`<mark class="highlight">${m}</mark>`);
+}
+
+function cardHTML(a,i){
+  const dc=DISEASE_COLORS[a.diseaseTag]||{bg:'#f5f3ff',color:'#4c1d95'};
+  const isReviewed = reviewedPmids.has(a.pmid);
+  const isFav = favoritePmids.has(a.pmid);
+  const cardClasses = ['article-card', isReviewed?'reviewed':'', isFav?'favorited':''].filter(Boolean).join(' ');
+  return `<div class="${cardClasses}" style="border-left-color:${a.color};animation-delay:${i*.04}s" data-url="${a.url}" data-pmid="${a.pmid}">
+    <div class="article-meta">
+      <span class="journal-badge" style="background:${a.bg};color:${a.color}">${a.journal}</span>
+      <span class="type-badge">${a.articleType}</span>
+      <span class="article-date">${a.date}</span>
+    </div>
+    <div class="article-title">${hl(a.title)}</div>
+    <div class="article-authors">${a.authors}</div>
+    ${a.abstract?`<div class="article-abstract">${hl(a.abstract)}</div><button class="expand-toggle">Read more</button>`:''}
+    <div class="article-footer">
+      <span class="disease-tag" style="background:${dc.bg};color:${dc.color}">${a.diseaseTag}</span>
+      <div class="article-links">
+        <button class="fav-btn${isFav?' active':''}" onclick="event.stopPropagation();handleFavoriteChange(this,'${a.pmid}')">
+          <span class="fav-star">${isFav?'★':'☆'}</span> Save
+        </button>
+        <label class="reviewed-checkbox${isReviewed?' checked':''}" onclick="event.stopPropagation()">
+          <input type="checkbox" ${isReviewed?'checked':''} onchange="handleReviewedChange(this,'${a.pmid}')"> Reviewed
+        </label>
+        ${activeReviewFilter==='dismissed'
+          ? `<button class="dismiss-btn" onclick="event.stopPropagation();restoreArticle('${a.pmid}')">↩ Restore</button>`
+          : `<button class="dismiss-btn" onclick="event.stopPropagation();handleDismiss(this,'${a.pmid}')">✕ Hide</button>`}
+        <a class="link-btn link-btn-secondary" href="https://pubmed.ncbi.nlm.nih.gov/${a.pmid}/" target="_blank">PubMed</a>
+        <a class="link-btn link-btn-primary" href="${a.url}" target="_blank">Full Text ↗</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPagination(total){
+  const pag=document.getElementById('pagination');
+  if(total<=1){pag.style.display='none';return;}
+  pag.style.display='flex';
+  let h=`<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>← Prev</button>`;
+  for(let i=1;i<=total;i++){
+    if(i===1||i===total||Math.abs(i-currentPage)<=1)
+      h+=`<button class="page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+    else if(Math.abs(i-currentPage)===2)
+      h+=`<span style="color:var(--text-muted);padding:0 2px">…</span>`;
+  }
+  h+=`<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>Next →</button>`;
+  pag.innerHTML=h;
+}
+
+function goPage(p){currentPage=p;renderFeed();window.scrollTo({top:0,behavior:'smooth'});}
+
+function renderDigest(){
+  const container=document.getElementById('feedContainer');
+  document.getElementById('pagination').style.display='none';
+  if(!filteredArticles.length){container.innerHTML=`<div class="no-results">No articles found.</div>`;return;}
+  const byJ={};
+  filteredArticles.forEach(a=>{if(!byJ[a.journal])byJ[a.journal]=[];byJ[a.journal].push(a);});
+  let h='';
+  for(const [jname,arts] of Object.entries(byJ)){
+    const j=JOURNALS.find(x=>x.name===jname);
+    h+=`<div class="digest-section"><div class="digest-section-title" style="border-color:${j?j.color:'#0a1628'}">${jname}</div>`;
+    arts.slice(0,6).forEach(a=>{
+      const dc=DISEASE_COLORS[a.diseaseTag]||{bg:'#f5f3ff',color:'#4c1d95'};
+      const isReviewed = reviewedPmids.has(a.pmid);
+      const isFav = favoritePmids.has(a.pmid);
+      const dClasses = ['article-card', isReviewed?'reviewed':'', isFav?'favorited':''].filter(Boolean).join(' ');
+      h+=`<div class="${dClasses}" style="border-left-color:${a.color}" data-url="${a.url}" data-pmid="${a.pmid}">
+        <div class="article-meta"><span class="type-badge">${a.articleType}</span><span class="article-date">${a.date}</span></div>
+        <div class="article-title">${a.title}</div>
+        <div class="article-authors">${a.authors}</div>
+        <div class="article-footer">
+          <span class="disease-tag" style="background:${dc.bg};color:${dc.color}">${a.diseaseTag}</span>
+          <div class="article-links">
+            <button class="fav-btn${isFav?' active':''}" onclick="event.stopPropagation();handleFavoriteChange(this,'${a.pmid}')">
+              <span class="fav-star">${isFav?'★':'☆'}</span> Save
+            </button>
+            <label class="reviewed-checkbox${isReviewed?' checked':''}" onclick="event.stopPropagation()">
+              <input type="checkbox" ${isReviewed?'checked':''} onchange="handleReviewedChange(this,'${a.pmid}')"> Reviewed
+            </label>
+            <button class="dismiss-btn" onclick="event.stopPropagation();handleDismiss(this,'${a.pmid}')">✕ Hide</button>
+            <a class="link-btn link-btn-primary" href="${a.url}" target="_blank">View ↗</a>
+          </div>
+        </div></div>`;
+    });
+    h+=`</div>`;
+  }
+  container.innerHTML=h;
+  container.querySelectorAll('.article-card').forEach(card=>{
+    card.onclick=function(e){if(e.target.closest('a')) return;window.open(this.dataset.url,'_blank');};
+  });
+}
+
+// ── Tab / view switching ──────────────────────────────────────────────────────
+// Conference portal tab definitions — static URLs but labels derived from MEETINGS data
+// (buildConfPortals populates dynamic text after MEETINGS is defined)
+const CONF_PORTAL_BASES = {
+  ash:  {abbr:'ASH',  url:'https://ash.confex.com/ash/2025/webprogram/start.html',       absUrl:'https://ash.confex.com/ash/2025/webprogram/start.html',        desc:'Browse and search ASH Annual Meeting abstracts on the official ASH portal.'},
+  asco: {abbr:'ASCO', url:'https://meetings.asco.org/',                                   absUrl:'https://meetings.asco.org/abstracts-presentations/search',      desc:'Search ASCO Annual Meeting abstracts on the official ASCO database.'},
+  eha:  {abbr:'EHA',  url:'https://ehaweb.org/congress/',                                 absUrl:'https://library.ehaweb.org/',                                  desc:'Access EHA Congress abstracts via the EHA e-Library.'},
+  esmo: {abbr:'ESMO', url:'https://www.esmo.org/meeting-calendar/esmo-congress-2025',     absUrl:'https://oncologypro.esmo.org/meeting-resources',               desc:'Browse ESMO congress meeting resources and published abstracts via OncologyPro.'},
+};
+
+// Built dynamically after MEETINGS is defined
+let CONF_PORTALS = {};
+
+function buildConfPortals(){
+  const today = new Date().toISOString().slice(0,10);
+  Object.entries(CONF_PORTAL_BASES).forEach(([key, base]) => {
+    // Find most recent upcoming (or currently active) meeting for this conference
+    const relevant = MEETINGS
+      .filter(m => m.abbr === base.abbr && m.end >= today)
+      .sort((a,b) => a.start.localeCompare(b.start));
+    const meeting = relevant[0] || MEETINGS
+      .filter(m => m.abbr === base.abbr)
+      .sort((a,b) => b.start.localeCompare(a.start))[0]; // fallback: most recent past
+
+    if(!meeting){ CONF_PORTALS[key] = {title: base.abbr, desc: base.desc, url: base.absUrl, label: `Open ${base.abbr} ↗`}; return; }
+
+    const year = meeting.start.slice(0,4);
+    const monthName = new Date(meeting.start+'T00:00:00').toLocaleDateString('en-US',{month:'short'});
+    const isActive = meeting.start <= today && meeting.end >= today;
+    const isFuture = meeting.start > today;
+
+    CONF_PORTALS[key] = {
+      title: `${base.abbr} ${year} ${isActive ? '(Happening Now!)' : ''}`,
+      desc:  `${meeting.name}, ${meeting.loc}. ${monthName} ${year}. ${base.desc}`,
+      url:   base.absUrl,
+      label: `Open ${base.abbr} ${year} Abstracts ↗`,
+    };
+  });
+  buildSidebarConf();
+}
+
+function buildSidebarConf(){
+  const today = new Date().toISOString().slice(0,10);
+  const SIDEBAR_CONFS = ['ASH','ASCO','EHA','ESMO'];
+  const BADGE_STYLES = {
+    ASH:  'background:#1e3a6e;color:#bfdbfe',
+    ASCO: 'background:#7f1d1d;color:#fecaca',
+    EHA:  'background:#14532d;color:#bbf7d0',
+    ESMO: 'background:#713f12;color:#fde68a',
+  };
+
+  const rows = SIDEBAR_CONFS.map(abbr => {
+    // Find next upcoming meeting for this abbr
+    const upcoming = MEETINGS
+      .filter(m => m.abbr === abbr && m.end >= today)
+      .sort((a,b) => a.start.localeCompare(b.start))[0];
+    const past = !upcoming && MEETINGS
+      .filter(m => m.abbr === abbr)
+      .sort((a,b) => b.start.localeCompare(a.start))[0];
+    const m = upcoming || past;
+    if(!m) return '';
+
+    const year  = m.start.slice(0,4);
+    const month = new Date(m.start+'T00:00:00').toLocaleDateString('en-US',{month:'short'});
+    const isActive = m.start <= today && m.end >= today;
+    const isUpcoming = m.start > today;
+    const statusLabel = isActive
+      ? `<span style="font-size:.6rem;background:#dcfce7;color:#166534;padding:1px 5px;border-radius:3px;font-weight:700">NOW</span>`
+      : `${month} ${year}`;
+    const key = abbr.toLowerCase();
+    const base = CONF_PORTAL_BASES[key];
+    const url  = base ? base.absUrl : m.url;
+
+    return `<a class="conf-item" href="${url}" target="_blank">
+      <span class="conf-badge" style="${BADGE_STYLES[abbr]||'background:#1e3a6e;color:#bfdbfe'}">${abbr}</span>
+      ${abbr} ${year}
+      <span class="conf-date">${statusLabel} ↗</span>
+    </a>`;
+  }).join('');
+
+  const card = document.getElementById('sidebarConfCard');
+  if(card){
+    card.innerHTML = `<h3>Conference Portals</h3>${rows}`;
+  }
+}
+
+function setTab(el, tab){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  saveTabOrder();
+  currentTab=tab; currentPage=1;
+
+  if(tab==='fda'){
+    currentView='fda';
+    document.getElementById('activeFiltersBar').style.display='none';
+    document.getElementById('pagination').style.display='none';
+    renderFdaTab();
+    return;
+  }
+
+  if(tab==='calendar'){
+    document.getElementById('feedTitle').textContent='Conference Calendar';
+    document.getElementById('feedSubtitle').textContent='';
+    document.getElementById('activeFiltersBar').style.display='none';
+    renderCalendarTab();
+    return;
+  }
+
+  if(tab==='favorites'){
+    currentView='feed';
+    document.getElementById('feedTitle').textContent='Saved Articles';
+    // temporarily set filter to favorites
+    activeReviewFilter='favorites';
+    document.querySelectorAll('#reviewFilters .filter-item').forEach((e,i)=>e.classList.toggle('active', i===3));
+    applyFilters();
+    return;
+  }
+
+  if(CONF_PORTALS[tab]){
+    const c=CONF_PORTALS[tab];
+    document.getElementById('feedTitle').textContent=c.title;
+    document.getElementById('feedSubtitle').textContent='';
+    document.getElementById('feedContainer').innerHTML=`
+      <div class="conf-portal">
+        <h2>${c.title}</h2>
+        <p>${c.desc}</p>
+        <a class="link-btn link-btn-primary" href="${c.url}" target="_blank" style="padding:.65rem 1.5rem;font-size:.9rem">${c.label}</a>
+      </div>`;
+    document.getElementById('pagination').style.display='none';
+    return;
+  }
+
+  if(tab==='digest'){
+    currentView='digest';
+    document.getElementById('feedTitle').textContent='Weekly Digest';
+  } else {
+    currentView='feed';
+    document.getElementById('feedTitle').textContent='Latest in Hematology & Oncology';
+  }
+  applyFilters();
+}
+
+function setView(view, btn){
+  currentView=view;
+  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPage=1; renderFeed();
+}
+
+function refreshAll(){
+  document.getElementById('refreshBtn').textContent='↻ Refreshing…';
+  loadAllArticles().then(()=>{document.getElementById('refreshBtn').textContent='↻ Refresh';});
+}
+
+let st;
+document.getElementById('searchInput').addEventListener('input',function(){
+  clearTimeout(st); searchQuery=this.value;
+  st=setTimeout(()=>{currentPage=1;applyFilters();},300);
+});
+
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+const CONF_COLORS = {
+  'ASCO':    {bg:'#fee2e2', color:'#991b1b', dark:'#7f1d1d'},
+  'ASH':     {bg:'#dbeafe', color:'#1e40af', dark:'#1e3a6e'},
+  'ESMO':    {bg:'#fef3c7', color:'#92400e', dark:'#713f12'},
+  'EHA':     {bg:'#dcfce7', color:'#166534', dark:'#14532d'},
+  'SABCS':   {bg:'#fce7f3', color:'#9d174d', dark:'#831843'},
+  'AACR':    {bg:'#ede9fe', color:'#5b21b6', dark:'#4c1d95'},
+  'ASTRO':   {bg:'#e0f2fe', color:'#075985', dark:'#0c4a6e'},
+  'SITC':    {bg:'#ecfccb', color:'#3f6212', dark:'#365314'},
+  'SNO':     {bg:'#fdf4ff', color:'#7e22ce', dark:'#6b21a8'},
+  'ACCC':    {bg:'#fff7ed', color:'#9a3412', dark:'#7c2d12'},
+  'IWMF':    {bg:'#f0fdf4', color:'#15803d', dark:'#14532d'},
+  'IMW':     {bg:'#fdf2f8', color:'#a21caf', dark:'#86198f'},
+  'SOHO':    {bg:'#f0f9ff', color:'#0369a1', dark:'#0c4a6e'},
+  'AONN':    {bg:'#fefce8', color:'#854d0e', dark:'#713f12'},
+};
+
+const MEETINGS = [
+  // 2025
+  {name:'AACR Annual Meeting',         abbr:'AACR',  start:'2025-04-25', end:'2025-04-30', loc:'Chicago, IL',          url:'https://www.aacr.org/meeting/aacr-annual-meeting-2025/'},
+  {name:'ASCO Annual Meeting',          abbr:'ASCO',  start:'2025-05-30', end:'2025-06-03', loc:'Chicago, IL',          url:'https://meetings.asco.org/'},
+  {name:'EHA Congress',                 abbr:'EHA',   start:'2025-06-12', end:'2025-06-15', loc:'Milan, Italy',         url:'https://ehaweb.org/congress/'},
+  {name:'SOHO Annual Meeting',          abbr:'SOHO',  start:'2025-09-17', end:'2025-09-20', loc:'Houston, TX',          url:'https://www.sohonet.org/'},
+  {name:'ESMO Congress',                abbr:'ESMO',  start:'2025-09-12', end:'2025-09-16', loc:'Berlin, Germany',      url:'https://www.esmo.org/meeting-calendar/esmo-congress-2025'},
+  {name:'ASTRO Annual Meeting',         abbr:'ASTRO', start:'2025-10-05', end:'2025-10-08', loc:'Denver, CO',           url:'https://www.astro.org/Meetings-and-Education/ASTRO-Annual-Meeting'},
+  {name:'SITC Annual Meeting',          abbr:'SITC',  start:'2025-11-05', end:'2025-11-09', loc:'Houston, TX',          url:'https://www.sitcancer.org/meetings'},
+  {name:'SNO Annual Meeting',           abbr:'SNO',   start:'2025-11-13', end:'2025-11-16', loc:'Boston, MA',           url:'https://www.soc-neuro-onc.org/'},
+  {name:'ASH Annual Meeting',           abbr:'ASH',   start:'2025-12-06', end:'2025-12-09', loc:'Orlando, FL',          url:'https://www.hematology.org/meetings/annual-meeting'},
+  {name:'San Antonio Breast Cancer',    abbr:'SABCS', start:'2025-12-09', end:'2025-12-13', loc:'San Antonio, TX',      url:'https://www.sabcs.org/'},
+  // 2026
+  {name:'AACR Annual Meeting',         abbr:'AACR',  start:'2026-04-17', end:'2026-04-22', loc:'New Orleans, LA',      url:'https://www.aacr.org/'},
+  {name:'ASCO Annual Meeting',          abbr:'ASCO',  start:'2026-05-29', end:'2026-06-02', loc:'Chicago, IL',          url:'https://meetings.asco.org/'},
+  {name:'EHA Congress',                 abbr:'EHA',   start:'2026-06-11', end:'2026-06-14', loc:'Copenhagen, Denmark',  url:'https://ehaweb.org/'},
+  {name:'ESMO Congress',                abbr:'ESMO',  start:'2026-09-11', end:'2026-09-15', loc:'TBD',                  url:'https://www.esmo.org/'},
+  {name:'SITC Annual Meeting',          abbr:'SITC',  start:'2026-11-04', end:'2026-11-08', loc:'TBD',                  url:'https://www.sitcancer.org/'},
+  {name:'ASH Annual Meeting',           abbr:'ASH',   start:'2026-12-05', end:'2026-12-08', loc:'San Francisco, CA',    url:'https://www.hematology.org/'},
+  {name:'San Antonio Breast Cancer',    abbr:'SABCS', start:'2026-12-08', end:'2026-12-12', loc:'San Antonio, TX',      url:'https://www.sabcs.org/'},
+];
+
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-indexed
+
+function renderCalendarTab(){
+  document.getElementById('feedTitle').textContent = 'Conference Calendar';
+  document.getElementById('feedSubtitle').textContent = 'Major Hematology & Oncology meetings';
+  document.getElementById('pagination').style.display = 'none';
+
+  const container = document.getElementById('feedContainer');
+  container.innerHTML = `<div class="cal-wrap">
+    <div id="calNavArea"></div>
+    <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;">
+      <div>
+        <div class="cal-grid-wrap"><div id="calGrid"></div></div>
+        <div class="cal-legend" style="margin-top:1rem" id="calLegend"></div>
+      </div>
+      <div class="cal-upcoming" id="calUpcoming"></div>
+    </div>
+  </div>`;
+
+  buildCalendar();
+}
+
+function buildCalendar(){
+  renderCalNav();
+  renderCalGrid();
+  renderCalLegend();
+  renderUpcoming();
+}
+
+function renderCalNav(){
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calNavArea').innerHTML = `
+    <div class="cal-nav">
+      <div class="cal-nav-title">${months[calMonth]} ${calYear}</div>
+      <div class="cal-nav-btns">
+        <button class="cal-nav-btn" onclick="calShift(-1)">← Prev</button>
+        <button class="cal-nav-btn today" onclick="calToday()">Today</button>
+        <button class="cal-nav-btn" onclick="calShift(1)">Next →</button>
+      </div>
+    </div>`;
+}
+
+function calShift(dir){
+  calMonth += dir;
+  if(calMonth > 11){ calMonth = 0; calYear++; }
+  if(calMonth < 0){ calMonth = 11; calYear--; }
+  buildCalendar();
+}
+function calToday(){ calYear = new Date().getFullYear(); calMonth = new Date().getMonth(); buildCalendar(); }
+
+function renderCalGrid(){
+  const dows = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+  // Build 6-row grid
+  let days = [];
+  for(let i=firstDay-1; i>=0; i--) days.push({day: daysInPrev-i, cur:false});
+  for(let i=1; i<=daysInMonth; i++) days.push({day:i, cur:true});
+  while(days.length % 7 !== 0) days.push({day: days.length - daysInMonth - firstDay + 1, cur:false});
+
+  // Map meetings to date cells
+  function dateStr(y,m,d){ return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+
+  let gridHTML = '<div class="cal-dow-row">' + dows.map(d=>`<div class="cal-dow">${d}</div>`).join('') + '</div>';
+  gridHTML += '<div class="cal-days">';
+
+  days.forEach(({day, cur})=>{
+    const m = cur ? calMonth : (day > 20 ? calMonth-1 : calMonth+1);
+    const y = cur ? calYear : (day > 20 ? (calMonth===0?calYear-1:calYear) : (calMonth===11?calYear+1:calYear));
+    const ds = dateStr(y, m < 0 ? 11 : m > 11 ? 0 : m, day);
+    const cellDate = new Date(ds + 'T00:00:00');
+    const isToday = cellDate.getTime() === today.getTime();
+
+    // Find events that span this day
+    const eventsToday = MEETINGS.filter(ev => ds >= ev.start && ds <= ev.end);
+
+    let dayHTML = `<div class="cal-day${!cur?' other-month':''}${isToday?' today-cell':''}">`;
+    if(isToday){
+      dayHTML += `<div class="cal-day-num"><span class="today-dot">${day}</span></div>`;
+    } else {
+      dayHTML += `<div class="cal-day-num">${day}</div>`;
+    }
+
+    eventsToday.forEach(ev=>{
+      const c = CONF_COLORS[ev.abbr] || {bg:'#f1f5f9', color:'#334155'};
+      const isStart = ds === ev.start;
+      const label = isStart ? ev.abbr : '';
+      dayHTML += `<div class="cal-event${isStart?' start':''}${ds===ev.end?' end':''}${ds!==ev.start&&ds!==ev.end?' mid':''}"
+        style="background:${c.bg};color:${c.color};border-left:2px solid ${c.color}"
+        onclick="window.open('${ev.url}','_blank')" title="${ev.name} (${ev.start} – ${ev.end})"
+      >${label}</div>`;
+    });
+
+    dayHTML += '</div>';
+    gridHTML += dayHTML;
+  });
+
+  gridHTML += '</div>';
+  document.getElementById('calGrid').innerHTML = gridHTML;
+}
+
+function renderCalLegend(){
+  const seen = new Set();
+  const items = MEETINGS.filter(ev=>{
+    if(seen.has(ev.abbr)) return false;
+    seen.add(ev.abbr); return true;
+  });
+  document.getElementById('calLegend').innerHTML =
+    items.map(ev=>{
+      const c = CONF_COLORS[ev.abbr]||{bg:'#f1f5f9',color:'#334155'};
+      return `<div class="cal-legend-item"><span class="cal-legend-dot" style="background:${c.color}"></span>${ev.abbr} – ${ev.name.replace(/ Annual Meeting| Congress/,'')}</div>`;
+    }).join('');
+}
+
+function renderUpcoming(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const sorted = [...MEETINGS].sort((a,b)=>a.start.localeCompare(b.start));
+  // Show next 10 upcoming + any currently active
+  const relevant = sorted.filter(ev => ev.end >= today.toISOString().substring(0,10)).slice(0,10);
+
+  let html = '<div class="cal-upcoming-title">Upcoming Meetings</div>';
+  relevant.forEach(ev=>{
+    const c = CONF_COLORS[ev.abbr]||{bg:'#f1f5f9',color:'#334155',dark:'#334155'};
+    const start = new Date(ev.start+'T00:00:00');
+    const end   = new Date(ev.end+'T00:00:00');
+    const todayMs = today.getTime();
+    const daysUntil = Math.round((start - todayMs) / 86400000);
+    const isActive  = todayMs >= start && todayMs <= end;
+
+    let countdownLabel, countdownClass;
+    if(isActive){ countdownLabel = 'Happening now'; countdownClass = 'active'; }
+    else if(daysUntil <= 30){ countdownLabel = `In ${daysUntil}d`; countdownClass = 'soon'; }
+    else { countdownLabel = `In ${Math.round(daysUntil/30.4)}mo`; countdownClass = ''; }
+
+    const fmt = (d) => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const dateRange = start.getMonth()===end.getMonth()
+      ? `${fmt(start)}–${end.getDate()}, ${end.getFullYear()}`
+      : `${fmt(start)} – ${fmt(end)}, ${end.getFullYear()}`;
+
+    html += `<a class="cal-event-row" href="${ev.url}" target="_blank">
+      <div class="cal-event-bar" style="background:${c.color}"></div>
+      <div class="cal-event-info">
+        <div class="cal-event-name">${ev.name}</div>
+        <div class="cal-event-dates">📅 ${dateRange}</div>
+        <div class="cal-event-loc">📍 ${ev.loc}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+        <span class="cal-event-tag" style="background:${c.bg};color:${c.color}">${ev.abbr}</span>
+        <span class="cal-countdown ${countdownClass}">${countdownLabel}</span>
+      </div>
+    </a>`;
+  });
+
+  document.getElementById('calUpcoming').innerHTML = html;
+}
+
+
+
+// ── FDA Approvals ─────────────────────────────────────────────────────────────
+const FDA_STORAGE_KEY  = 'hemonc_fda_reviewed';
+const FDA_FAV_KEY      = 'hemonc_fda_favorites';
+const FDA_DISMISS_KEY  = 'hemonc_fda_dismissed';
+
+function loadFdaSet(key){ try{return new Set(JSON.parse(localStorage.getItem(key)||'[]'));}catch(e){return new Set();} }
+function saveFdaSet(key,set){ try{localStorage.setItem(key,JSON.stringify([...set]));}catch(e){} }
+
+let fdaReviewed  = loadFdaSet(FDA_STORAGE_KEY);
+let fdaFavorites = loadFdaSet(FDA_FAV_KEY);
+let fdaDismissed = loadFdaSet(FDA_DISMISS_KEY);
+let fdaFilterCat = 'all';
+let fdaSearchQ   = '';
+let fdaLiveResults = [];
+let fdaLiveLoaded = false;
+let fdaLiveLoading = false;
+let fdaLastFetch = null;
+
+// Comprehensive list of recent FDA hematology/oncology approvals
+const FDA_APPROVALS = [
+  // 2025
+  {id:'fda-001', drug:'Imlunestrant', generic:'imlunestrant', date:'2025-03-27', category:'Solid Tumor', disease:'Breast Cancer', indication:'ER+/HER2- advanced or metastatic breast cancer with ESR1 mutation, after prior endocrine therapy', company:'Eli Lilly', designation:['Breakthrough','Priority Review'], mechanism:'Selective estrogen receptor degrader (SERD)', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-002', drug:'Lazertinib + Amivantamab', generic:'lazertinib / amivantamab-vmjw', date:'2025-03-05', category:'Solid Tumor', disease:'NSCLC', indication:'EGFR-mutated locally advanced or metastatic NSCLC (first-line), in combination', company:'J&J / Janssen', designation:['Breakthrough'], mechanism:'EGFR/MET bispecific antibody + EGFR TKI', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-003', drug:'Ribociclib', generic:'ribociclib', date:'2025-02-25', category:'Solid Tumor', disease:'Breast Cancer', indication:'HR+/HER2- early breast cancer (high risk) as adjuvant therapy with endocrine therapy', company:'Novartis', designation:['Priority Review'], mechanism:'CDK4/6 inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-004', drug:'Taletrectinib', generic:'taletrectinib', date:'2025-01-30', category:'Solid Tumor', disease:'NSCLC', indication:'ROS1-positive locally advanced or metastatic NSCLC', company:'Nuvation Bio', designation:['Breakthrough','Priority Review'], mechanism:'ROS1/NTRK inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-005', drug:'Brentuximab vedotin', generic:'brentuximab vedotin', date:'2025-01-16', category:'Hematology', disease:'Lymphoma', indication:'Previously untreated CD30+ peripheral T-cell lymphoma in combination with CHP', company:'Seagen / Pfizer', designation:['Regular Approval'], mechanism:'Anti-CD30 antibody-drug conjugate', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+
+  // 2024
+  {id:'fda-006', drug:'Nivolumab + Ipilimumab', generic:'nivolumab / ipilimumab', date:'2024-12-10', category:'Solid Tumor', disease:'Colorectal Cancer', indication:'MSS/pMMR metastatic colorectal cancer with KRAS/NRAS/BRAF WT as first-line therapy', company:'Bristol Myers Squibb', designation:['Breakthrough'], mechanism:'PD-1 + CTLA-4 checkpoint inhibitors', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-007', drug:'Elranatamab', generic:'elranatamab-bcmm', date:'2024-08-14', category:'Hematology', disease:'Myeloma', indication:'Relapsed or refractory multiple myeloma after ≥4 prior lines including PI, IMiD, and anti-CD38', company:'Pfizer', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'BCMA×CD3 bispecific antibody', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-008', drug:'Imetelstat', generic:'imetelstat', date:'2024-06-06', category:'Hematology', disease:'MDS', indication:'Transfusion-dependent anemia due to low- or intermediate-1-risk MDS with RBC transfusion dependence', company:'Geron', designation:['Priority Review','Orphan Drug'], mechanism:'Telomerase inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-009', drug:'Tarlatamab', generic:'tarlatamab-dlle', date:'2024-05-16', category:'Solid Tumor', disease:'SCLC', indication:'Relapsed or refractory extensive-stage small cell lung cancer after platinum-based chemotherapy', company:'Amgen', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'DLL3×CD3 bispecific T-cell engager (BiTE)', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-010', drug:'Pembrolizumab + Chemotherapy', generic:'pembrolizumab', date:'2024-04-19', category:'Solid Tumor', disease:'Gastric/GEJ Cancer', indication:'HER2-negative locally advanced unresectable or metastatic gastric/GEJ adenocarcinoma with CPS≥1', company:'Merck', designation:['Regular Approval'], mechanism:'PD-1 checkpoint inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-011', drug:'Zanubrutinib', generic:'zanubrutinib', date:'2024-09-05', category:'Hematology', disease:'CLL', indication:'Chronic lymphocytic leukemia or small lymphocytic lymphoma (full approval)', company:'BeiGene', designation:['Regular Approval'], mechanism:'BTK inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-012', drug:'Obecabtagene autoleucel', generic:'obecabtagene autoleucel', date:'2024-11-08', category:'Hematology', disease:'ALL', indication:'Relapsed or refractory B-cell precursor ALL in adults', company:'Autolus', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'CD19-directed CAR T-cell therapy', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-013', drug:'Osimertinib', generic:'osimertinib', date:'2024-10-25', category:'Solid Tumor', disease:'NSCLC', indication:'Resectable EGFR-mutated (exon 19del or L858R) NSCLC as neoadjuvant+adjuvant therapy', company:'AstraZeneca', designation:['Breakthrough','Priority Review'], mechanism:'EGFR TKI (3rd generation)', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-014', drug:'Revumenib', generic:'revumenib', date:'2024-11-15', category:'Hematology', disease:'AML', indication:'Relapsed or refractory KMT2A-rearranged acute leukemia (adults and pediatric ≥1 year)', company:'Syndax', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'Menin inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-015', drug:'Vepdegestrant', generic:'vepdegestrant', date:'2024-12-19', category:'Solid Tumor', disease:'Breast Cancer', indication:'ER+/HER2- metastatic breast cancer with ESR1 mutation, after endocrine-based therapy', company:'Pfizer / Arvinas', designation:['Breakthrough'], mechanism:'PROTAC estrogen receptor degrader', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-016', drug:'Ciltacabtagene autoleucel', generic:'ciltacabtagene autoleucel', date:'2024-04-05', category:'Hematology', disease:'Myeloma', indication:'Relapsed/refractory multiple myeloma after ≥1 prior line including PI and IMiD', company:'J&J / Legend Biotech', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'BCMA-directed CAR T-cell therapy', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-017', drug:'Datopotamab deruxtecan', generic:'datopotamab deruxtecan', date:'2024-02-23', category:'Solid Tumor', disease:'NSCLC', indication:'Non-squamous NSCLC with no actionable genomic alterations, after platinum-based chemotherapy and immunotherapy', company:'AstraZeneca / Daiichi Sankyo', designation:['Breakthrough'], mechanism:'TROP2-directed antibody-drug conjugate', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-018', drug:'Nivolumab', generic:'nivolumab', date:'2024-03-20', category:'Solid Tumor', disease:'Liver Cancer', indication:'Unresectable or metastatic HCC as first-line therapy in combination with ipilimumab', company:'Bristol Myers Squibb', designation:['Regular Approval'], mechanism:'PD-1 checkpoint inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-019', drug:'Lisocabtagene maraleucel', generic:'lisocabtagene maraleucel', date:'2024-06-24', category:'Hematology', disease:'CLL', indication:'Relapsed or refractory CLL/SLL after ≥2 prior lines including BTKi and BCL2i', company:'Bristol Myers Squibb', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'CD19-directed CAR T-cell therapy', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-020', drug:'Pembrolizumab', generic:'pembrolizumab', date:'2024-01-26', category:'Solid Tumor', disease:'Mesothelioma', indication:'Unresectable advanced or metastatic malignant pleural mesothelioma (first-line) with pemetrexed + platinum', company:'Merck', designation:['Regular Approval'], mechanism:'PD-1 checkpoint inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+
+  // 2023
+  {id:'fda-021', drug:'Talquetamab', generic:'talquetamab-tgvs', date:'2023-08-09', category:'Hematology', disease:'Myeloma', indication:'Relapsed or refractory multiple myeloma after ≥4 prior lines', company:'J&J', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'GPRC5D×CD3 bispecific antibody', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-022', drug:'Mirvetuximab soravtansine', generic:'mirvetuximab soravtansine-gynx', date:'2023-11-14', category:'Solid Tumor', disease:'Ovarian Cancer', indication:'FRα-positive, platinum-resistant epithelial ovarian, fallopian tube, or primary peritoneal cancer', company:'ImmunoGen / AbbVie', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'FRα-directed antibody-drug conjugate', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-023', drug:'Olutasidenib', generic:'olutasidenib', date:'2023-12-01', category:'Hematology', disease:'AML', indication:'Relapsed or refractory AML with IDH1 mutation', company:'Forma Therapeutics / Novo Nordisk', designation:['Priority Review','Orphan Drug'], mechanism:'IDH1 inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-024', drug:'Glofitamab', generic:'glofitamab-gxbm', date:'2023-06-15', category:'Hematology', disease:'Lymphoma', indication:'Relapsed or refractory DLBCL after ≥2 prior lines', company:'Genentech / Roche', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'CD20×CD3 bispecific antibody', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-025', drug:'Epcoritamab', generic:'epcoritamab-bysp', date:'2023-05-19', category:'Hematology', disease:'Lymphoma', indication:'Relapsed or refractory DLBCL after ≥2 prior lines', company:'AbbVie / Genmab', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'CD20×CD3 bispecific antibody', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-026', drug:'Tremelimumab + Durvalumab', generic:'tremelimumab-actl / durvalumab', date:'2023-11-15', category:'Solid Tumor', disease:'Liver Cancer', indication:'Unresectable hepatocellular carcinoma (first-line)', company:'AstraZeneca', designation:['Regular Approval'], mechanism:'CTLA-4 + PD-L1 checkpoint inhibitors', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-027', drug:'Mosunetuzumab', generic:'mosunetuzumab-axgb', date:'2023-12-22', category:'Hematology', disease:'Lymphoma', indication:'Relapsed or refractory follicular lymphoma after ≥2 prior lines', company:'Genentech / Roche', designation:['Breakthrough','Priority Review','Orphan Drug'], mechanism:'CD20×CD3 bispecific antibody', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-028', drug:'Adagrasib', generic:'adagrasib', date:'2023-06-21', category:'Solid Tumor', disease:'CRC', indication:'KRAS G12C-mutated locally advanced or metastatic CRC in combination with cetuximab', company:'Mirati / BMS', designation:['Breakthrough','Priority Review'], mechanism:'KRAS G12C inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-029', drug:'Fruquintinib', generic:'fruquintinib', date:'2023-11-08', category:'Solid Tumor', disease:'Colorectal Cancer', indication:'Previously treated metastatic colorectal cancer (refractory)', company:'Hutchmed / Takeda', designation:['Priority Review'], mechanism:'VEGFR 1/2/3 inhibitor', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+  {id:'fda-030', drug:'Ivosidenib + Azacitidine', generic:'ivosidenib / azacitidine', date:'2023-08-24', category:'Hematology', disease:'AML', indication:'Newly diagnosed AML with IDH1 mutation in adults ≥75 or unfit for intensive chemotherapy', company:'Servier', designation:['Priority Review','Orphan Drug'], mechanism:'IDH1 inhibitor + hypomethylating agent', url:'https://www.fda.gov/drugs/resources-information-approved-drugs/hematologyoncology-cancer-approvals-safety-notifications'},
+];
+
+// ── Live openFDA fetch ─────────────────────────────────────────────────────
+// openFDA drug label API: public, free, CORS-enabled, no key required for light use.
+// We query for labels with recently-updated effective dates whose indications
+// mention oncology/hematology terms, to approximate "recent approval activity".
+const ONC_KEYWORDS = ['carcinoma','lymphoma','leukemia','myeloma','sarcoma','melanoma',
+  'neoplasm','oncology','tumor','myelodysplastic','myeloproliferative','metastatic'];
+
+function guessFdaDiseaseFromText(text){
+  const t = text.toLowerCase();
+  if(/acute myeloid leukemia|\baml\b/.test(t)) return 'AML';
+  if(/acute lymphoblastic leukemia|\ball\b/.test(t)) return 'ALL';
+  if(/chronic lymphocytic leukemia|\bcll\b/.test(t)) return 'CLL';
+  if(/chronic myeloid leukemia|\bcml\b/.test(t)) return 'CML';
+  if(/lymphoma/.test(t)) return 'Lymphoma';
+  if(/myeloma/.test(t)) return 'Myeloma';
+  if(/myelodysplastic/.test(t)) return 'MDS';
+  if(/myeloproliferative/.test(t)) return 'MPN';
+  if(/breast cancer|breast carcinoma/.test(t)) return 'Breast Cancer';
+  if(/lung cancer|non-small cell|nsclc|small cell lung/.test(t)) return 'NSCLC';
+  if(/colorectal|colon cancer/.test(t)) return 'Colorectal Cancer';
+  if(/prostate cancer/.test(t)) return 'Prostate Cancer';
+  if(/ovarian cancer/.test(t)) return 'Ovarian Cancer';
+  if(/melanoma/.test(t)) return 'Melanoma';
+  if(/hepatocellular|liver cancer/.test(t)) return 'Liver Cancer';
+  if(/renal cell|kidney cancer/.test(t)) return 'Renal Cancer';
+  if(/bladder cancer|urothelial/.test(t)) return 'Bladder Cancer';
+  if(/pancreatic cancer/.test(t)) return 'Pancreatic Cancer';
+  if(/gastric cancer|stomach cancer/.test(t)) return 'Gastric Cancer';
+  return 'Oncology';
+}
+
+function isLikelyHeme(diseaseTag){
+  return ['AML','ALL','CLL','CML','Lymphoma','Myeloma','MDS','MPN'].includes(diseaseTag);
+}
+
+async function fetchLiveFdaApprovals(){
+  if(fdaLiveLoading) return;
+  fdaLiveLoading = true;
+  renderFdaContent(); // show loading state
+
+  try {
+    const query = encodeURIComponent(
+      `indications_and_usage:("${ONC_KEYWORDS.join('" OR "')}")` 
+    );
+    const url = `https://api.fda.gov/drug/label.json?search=${query}&sort=effective_time:desc&limit=25`;
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error(`openFDA HTTP ${resp.status}`);
+    const data = await resp.json();
+
+    const results = (data.results || []).map((r, idx) => {
+      const brand = (r.openfda?.brand_name?.[0]) || (r.openfda?.substance_name?.[0]) || 'Unnamed product';
+      const generic = (r.openfda?.generic_name?.[0]) || (r.openfda?.substance_name?.[0]) || '';
+      const manufacturer = (r.openfda?.manufacturer_name?.[0]) || 'Manufacturer not listed';
+      const indicationRaw = (r.indications_and_usage?.[0] || '').replace(/<[^>]+>/g,'');
+      const indicationShort = indicationRaw.length > 280 ? indicationRaw.slice(0,280)+'…' : indicationRaw;
+      const effDate = r.effective_time; // YYYYMMDD
+      const dateFmt = effDate && effDate.length===8
+        ? `${effDate.slice(0,4)}-${effDate.slice(4,6)}-${effDate.slice(6,8)}`
+        : '';
+      const diseaseTag = guessFdaDiseaseFromText(indicationRaw);
+      const category = isLikelyHeme(diseaseTag) ? 'Hematology' : 'Solid Tumor';
+      const setId = r.set_id || r.id || `live-${idx}`;
+
+      return {
+        id: `live-${setId}`,
+        drug: brand,
+        generic: generic,
+        date: dateFmt || '',
+        category,
+        disease: diseaseTag,
+        indication: indicationShort || 'See full prescribing information for details.',
+        company: manufacturer,
+        designation: ['Live · openFDA'],
+        mechanism: '',
+        url: `https://labels.fda.gov/${setId}`,
+        isLive: true,
+      };
+    }).filter(item => item.date); // require a usable date
+
+    fdaLiveResults = results;
+    fdaLiveLoaded = true;
+    fdaLastFetch = new Date();
+  } catch(e) {
+    console.warn('openFDA fetch failed:', e);
+    fdaLiveResults = [];
+    fdaLiveLoaded = false;
+  } finally {
+    fdaLiveLoading = false;
+    renderFdaContent();
+  }
+}
+
+const DESIG_COLORS = {
+  'Breakthrough':     {bg:'#dbeafe',color:'#1e40af'},
+  'Priority Review':  {bg:'#dcfce7',color:'#166534'},
+  'Orphan Drug':      {bg:'#fce7f3',color:'#9d174d'},
+  'Regular Approval': {bg:'#f1f5f9',color:'#334155'},
+  'Accelerated':      {bg:'#fef3c7',color:'#92400e'},
+  'Live · openFDA':   {bg:'#dcfce7',color:'#166534'},
+};
+
+const FDA_CAT_COLORS = {
+  'Hematology': {border:'#1e40af', bg:'#dbeafe', color:'#1e40af'},
+  'Solid Tumor': {border:'#166534', bg:'#dcfce7', color:'#166534'},
+};
+
+function renderFdaTab(){
+  document.getElementById('feedTitle').textContent = 'FDA Oncology Approvals';
+  document.getElementById('feedSubtitle').textContent = 'Recent hematology & oncology drug approvals';
+  document.getElementById('pagination').style.display = 'none';
+  document.getElementById('activeFiltersBar').style.display = 'none';
+  document.getElementById('feedContainer').innerHTML = '<div id="fdaContent"></div>';
+  if(!fdaLiveLoaded && !fdaLiveLoading){
+    fetchLiveFdaApprovals();
+  } else {
+    renderFdaContent();
+  }
+}
+
+function refreshFdaLive(){
+  fdaLiveLoaded = false;
+  fetchLiveFdaApprovals();
+}
+
+function getAllFdaItems(){
+  // Merge live results with curated list; de-dupe by drug name (case-insensitive)
+  const curatedNames = new Set(FDA_APPROVALS.map(a=>a.drug.toLowerCase()));
+  const liveDeduped = fdaLiveResults.filter(l => !curatedNames.has(l.drug.toLowerCase()));
+  return [...liveDeduped, ...FDA_APPROVALS].sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+}
+
+function getFdaFiltered(){
+  let items = getAllFdaItems().filter(a => !fdaDismissed.has(a.id));
+  if(fdaFilterCat !== 'all') items = items.filter(a => a.category === fdaFilterCat || a.disease === fdaFilterCat);
+  if(fdaSearchQ.trim()){
+    const q = fdaSearchQ.toLowerCase();
+    items = items.filter(a =>
+      a.drug.toLowerCase().includes(q) ||
+      a.generic.toLowerCase().includes(q) ||
+      a.indication.toLowerCase().includes(q) ||
+      a.disease.toLowerCase().includes(q) ||
+      (a.mechanism||'').toLowerCase().includes(q)
+    );
+  }
+  return items;
+}
+
+function renderFdaContent(){
+  const allItems = getAllFdaItems();
+  const items = getFdaFiltered();
+  const total = allItems.length;
+  const revCount = allItems.filter(a => fdaReviewed.has(a.id)).length;
+  const favCount = allItems.filter(a => fdaFavorites.has(a.id)).length;
+  const liveCount = fdaLiveResults.length;
+
+  // Unique disease categories for filter pills
+  const cats = ['all', 'Hematology', 'Solid Tumor',
+    ...new Set(allItems.map(a=>a.disease))].filter((v,i,arr)=>arr.indexOf(v)===i);
+
+  let liveBannerHTML = '';
+  if(fdaLiveLoading){
+    liveBannerHTML = `<div class="fda-live-banner"><div class="fda-mini-spinner"></div> Fetching latest approvals from openFDA…</div>`;
+  } else if(fdaLiveLoaded){
+    const t = fdaLastFetch ? fdaLastFetch.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '';
+    liveBannerHTML = `<div class="fda-live-banner">
+      <span class="fda-live-dot"></span>
+      Live data from openFDA · ${liveCount} recent label${liveCount!==1?'s':''} found · updated ${t}
+      <button class="cal-nav-btn" style="margin-left:auto;padding:.15rem .6rem;font-size:.72rem" onclick="refreshFdaLive()">↻ Refresh</button>
+    </div>`;
+  } else {
+    liveBannerHTML = `<div class="fda-live-banner" style="background:#fef2f2;border-color:#fecaca;color:#991b1b">
+      Could not reach openFDA — showing curated list only.
+      <button class="cal-nav-btn" style="margin-left:auto;padding:.15rem .6rem;font-size:.72rem" onclick="refreshFdaLive()">↻ Retry</button>
+    </div>`;
+  }
+
+  let html = liveBannerHTML + `
+  <div class="fda-stats">
+    <div class="fda-stat"><div class="num">${total}</div><div class="lbl">Total</div></div>
+    <div class="fda-stat"><div class="num" style="color:#b45309">${favCount}</div><div class="lbl">Saved</div></div>
+    <div class="fda-stat"><div class="num" style="color:#166534">${revCount}</div><div class="lbl">Reviewed</div></div>
+  </div>
+  <div class="fda-filters">
+    <input class="fda-search" id="fdaSearchInput" placeholder="Search drug, indication, mechanism…" value="${fdaSearchQ}" oninput="fdaSearchQ=this.value;renderFdaContent()">
+    ${cats.map(c=>`<button class="fda-filter-btn${fdaFilterCat===c?' active':''}" onclick="fdaFilterCat='${c}';renderFdaContent()">${c==='all'?'All':c}</button>`).join('')}
+  </div>
+  <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:.75rem">${items.length} approval${items.length!==1?'s':''} shown</div>`;
+
+  if(!items.length && !fdaLiveLoading){
+    html += `<div class="no-results">No approvals match your search.</div>`;
+  } else {
+    items.forEach((a,i) => { html += fdaCardHTML(a, i); });
+  }
+
+  document.getElementById('fdaContent').innerHTML = html;
+
+  // Re-attach search input value/focus after re-render (skip focus during loading spinner updates)
+  const si = document.getElementById('fdaSearchInput');
+  if(si){ si.value = fdaSearchQ; }
+}
+
+function fdaCardHTML(a, i){
+  const catC = FDA_CAT_COLORS[a.category] || {border:'#334155',bg:'#f1f5f9',color:'#334155'};
+  const dc = DISEASE_COLORS[a.disease] || {bg:'#f1f5f9',color:'#334155'};
+  const isRev = fdaReviewed.has(a.id);
+  const isFav = fdaFavorites.has(a.id);
+  const classes = ['fda-card', isRev?'fda-reviewed':'', isFav?'fda-favorited':''].filter(Boolean).join(' ');
+  const dateFormatted = a.date ? new Date(a.date+'T00:00:00').toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) : 'Date unavailable';
+
+  const designationBadges = (a.designation||[]).map(d=>{
+    const dc2 = DESIG_COLORS[d]||{bg:'#f1f5f9',color:'#334155'};
+    return `<span class="fda-badge" style="background:${dc2.bg};color:${dc2.color}">${d}</span>`;
+  }).join('');
+
+  const sourceBadge = a.isLive
+    ? `<span class="fda-source-badge fda-source-live">Live</span>`
+    : `<span class="fda-source-badge fda-source-curated">Curated</span>`;
+
+  return `<div class="${classes}" style="border-left-color:${catC.border};animation-delay:${Math.min(i,15)*.04}s" id="fda-${a.id}">
+    <div class="fda-header">
+      <div>
+        <div class="fda-drug-name">${a.drug} ${sourceBadge}</div>
+        <div class="fda-generic">${a.generic}</div>
+      </div>
+      <div class="fda-badges">
+        <span class="fda-date-badge">📅 ${dateFormatted}</span>
+        <span class="fda-badge" style="background:${catC.bg};color:${catC.color}">${a.category}</span>
+        ${designationBadges}
+      </div>
+    </div>
+    <div class="fda-indication"><strong>${a.disease}:</strong> ${a.indication}</div>
+    <div class="fda-meta">
+      <span>🏭 ${a.company}</span>
+      ${a.mechanism ? `<span>⚙️ ${a.mechanism}</span>` : ''}
+    </div>
+    <div class="fda-footer">
+      <span class="fda-disease-tag" style="background:${dc.bg};color:${dc.color}">${a.disease}</span>
+      <div class="article-links" style="margin-left:auto">
+        <button class="fav-btn${isFav?' active':''}" onclick="fdaToggleFav('${a.id}',this)">
+          <span class="fav-star">${isFav?'★':'☆'}</span> Save
+        </button>
+        <label class="reviewed-checkbox${isRev?' checked':''}" onclick="event.stopPropagation()">
+          <input type="checkbox" ${isRev?'checked':''} onchange="fdaToggleReviewed('${a.id}',this)"> Reviewed
+        </label>
+        <button class="dismiss-btn" onclick="fdaDismiss('${a.id}',this)">✕ Hide</button>
+        <a class="link-btn link-btn-primary" href="${a.url}" target="_blank">${a.isLive ? 'View Label ↗' : 'FDA Page ↗'}</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+function fdaToggleFav(id, btn){
+  if(fdaFavorites.has(id)) fdaFavorites.delete(id);
+  else fdaFavorites.add(id);
+  saveFdaSet(FDA_FAV_KEY, fdaFavorites);
+  btn.classList.toggle('active', fdaFavorites.has(id));
+  btn.querySelector('.fav-star').textContent = fdaFavorites.has(id)?'★':'☆';
+  btn.closest('.fda-card').classList.toggle('fda-favorited', fdaFavorites.has(id));
+  renderFdaContent();
+}
+
+function fdaToggleReviewed(id, cb){
+  if(fdaReviewed.has(id)) fdaReviewed.delete(id);
+  else fdaReviewed.add(id);
+  saveFdaSet(FDA_STORAGE_KEY, fdaReviewed);
+  const label = cb.closest('.reviewed-checkbox');
+  label.classList.toggle('checked', fdaReviewed.has(id));
+  cb.closest('.fda-card').classList.toggle('fda-reviewed', fdaReviewed.has(id));
+  renderFdaContent();
+}
+
+function fdaDismiss(id, btn){
+  const card = btn.closest('.fda-card');
+  card.classList.add('dismissing');
+  setTimeout(()=>{
+    fdaDismissed.add(id);
+    saveFdaSet(FDA_DISMISS_KEY, fdaDismissed);
+    showFdaRestoreToast(id);
+    renderFdaContent();
+  }, 320);
+}
+
+function showFdaRestoreToast(id){
+  hideRestoreToast();
+  const a = getAllFdaItems().find(x=>x.id===id);
+  const shortTitle = a ? a.drug : 'Entry';
+  const toast = document.createElement('div');
+  toast.className = 'restore-toast';
+  toast.id = 'restoreToast';
+  toast.innerHTML = `<span>Hidden: <em>${shortTitle}</em></span><button class="restore-btn" onclick="fdaRestore('${id}')">Undo</button>`;
+  document.body.appendChild(toast);
+  toastTimer = setTimeout(hideRestoreToast, 6000);
+}
+
+function fdaRestore(id){
+  fdaDismissed.delete(id);
+  saveFdaSet(FDA_DISMISS_KEY, fdaDismissed);
+  hideRestoreToast();
+  renderFdaContent();
+}
+
+
+
+// ── Draggable Tab Management ──────────────────────────────────────────────────
+const TAB_ORDER_KEY = 'hemonc_tab_order';
+
+// Default tab definitions in desired default order
+const TAB_DEFS = [
+  {id:'all',      label:'All Sources'},
+  {id:'journals', label:'Journals'},
+  {id:'favorites',label:'★ Favorites'},
+  {id:'calendar', label:'📅 Calendar'},
+  {id:'fda',      label:'💊 FDA Approvals'},
+  {id:'ash',      label:'ASH'},
+  {id:'asco',     label:'ASCO'},
+  {id:'eha',      label:'EHA'},
+  {id:'esmo',     label:'ESMO'},
+  {id:'digest',   label:'Weekly Digest'},
+];
+
+function loadTabOrder(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(TAB_ORDER_KEY)||'null');
+    if(!saved) return TAB_DEFS.map(t=>t.id);
+    // Merge: keep saved order but add any new tabs not in saved list
+    const known = new Set(saved);
+    const extra = TAB_DEFS.map(t=>t.id).filter(id=>!known.has(id));
+    return [...saved.filter(id=>TAB_DEFS.find(t=>t.id===id)), ...extra];
+  } catch(e){ return TAB_DEFS.map(t=>t.id); }
+}
+
+function saveTabOrder(){
+  const order = [...document.querySelectorAll('.nav-tab')].map(t=>t.dataset.tab);
+  try{ localStorage.setItem(TAB_ORDER_KEY, JSON.stringify(order)); }catch(e){}
+}
+
+function buildTabs(){
+  const navInner = document.getElementById('navInner');
+  const hint = navInner.querySelector('.nav-drag-hint');
+  // Remove existing tabs (keep hint)
+  navInner.querySelectorAll('.nav-tab').forEach(t=>t.remove());
+
+  const order = loadTabOrder();
+  order.forEach(tabId => {
+    const def = TAB_DEFS.find(t=>t.id===tabId);
+    if(!def) return;
+    const tab = document.createElement('div');
+    tab.className = 'nav-tab';
+    tab.dataset.tab = tabId;
+    tab.textContent = def.label;
+    tab.draggable = true;
+    tab.addEventListener('click', function(e){
+      if(this.classList.contains('dragging')) return;
+      setTab(this, tabId);
+    });
+
+    // Drag events
+    tab.addEventListener('dragstart', onDragStart);
+    tab.addEventListener('dragenter', onDragEnter);
+    tab.addEventListener('dragover',  onDragOver);
+    tab.addEventListener('dragleave', onDragLeave);
+    tab.addEventListener('drop',      onDrop);
+    tab.addEventListener('dragend',   onDragEnd);
+
+    navInner.insertBefore(tab, hint);
+  });
+
+  // Restore active tab highlight
+  const activeTab = document.querySelector(`.nav-tab[data-tab="${currentTab}"]`);
+  if(activeTab) activeTab.classList.add('active');
+  else document.querySelector('.nav-tab[data-tab="all"]')?.classList.add('active');
+}
+
+let dragSrc = null;
+
+function onDragStart(e){
+  dragSrc = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', this.dataset.tab);
+}
+
+function onDragEnter(e){
+  if(this !== dragSrc) this.classList.add('drag-over');
+}
+
+function onDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+
+function onDragLeave(e){
+  this.classList.remove('drag-over');
+}
+
+function onDrop(e){
+  e.preventDefault();
+  e.stopPropagation();
+  this.classList.remove('drag-over');
+  if(dragSrc && this !== dragSrc){
+    const navInner = document.getElementById('navInner');
+    const tabs = [...navInner.querySelectorAll('.nav-tab')];
+    const srcIdx = tabs.indexOf(dragSrc);
+    const tgtIdx = tabs.indexOf(this);
+    if(srcIdx < tgtIdx){
+      navInner.insertBefore(dragSrc, this.nextSibling);
+    } else {
+      navInner.insertBefore(dragSrc, this);
+    }
+    saveTabOrder();
+  }
+}
+
+function onDragEnd(e){
+  this.classList.remove('dragging');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('drag-over'));
+  dragSrc = null;
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+buildTabs();
+buildConfPortals();
+loadAllArticles();
+</script>
+</body>
+</html>
